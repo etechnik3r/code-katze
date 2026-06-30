@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  CODE-KATZE  ·  ein pädagogisches Mobile-First Browserspiel
+  veröffentlicht unter dem Label JONFIE STUDIOS
+  ----------------------------------------------------------------------------
+  Idee:   Kinder steuern die Katze (🐱) NICHT direkt, sondern legen zuerst
+          eine Folge von Befehlen in eine Warteschlange (Command Queue) und
+          lassen diese danach Schritt für Schritt ausführen.  So wird
+          spielerisch "algorithmisches Denken" (Pre-Coding) geübt.
+  Technik: Reines HTML5 + CSS3 + Vanilla JavaScript (ES6+). Keine Frameworks,
+          keine Build-Tools, keine Installation – einfach im Browser öffnen.
+  ============================================================================
+-->
+<html lang="de">
+<head>
+  <!-- Zeichensatz für korrekte Umlaute und Emojis -->
+  <meta charset="UTF-8" />
+
+  <!--
+    Der viewport-Tag ist für "Mobile First" zentral:
+    Er sorgt dafür, dass die Seite auf Smartphones in der echten Gerätebreite
+    dargestellt wird (kein heraus-/hineingezoomtes Mini-Desktop-Layout).
+    'user-scalable=no' verhindert versehentliches Zoomen beim schnellen Tippen.
+  -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <!-- Farbe der Browser-/Statusleiste auf Mobilgeräten -->
+  <meta name="theme-color" content="#fef6e4" />
+
+  <title>JonFie Studios präsentiert: Code-Katze</title>
+
+  <!-- Externes Stylesheet (saubere Trennung von Struktur und Design) -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!--
+    ========================================================================
+    1. HEADER  ·  schlichter, moderner Schriftzug mit Wiedererkennungswert
+    ========================================================================
+  -->
+  <header class="kopf">
+    <p class="kopf__studio">JonFie Studios präsentiert</p>
+    <h1 class="kopf__titel">🐱 Code-Katze</h1>
+  </header>
+
+  <!--
+    ========================================================================
+    2. STATUS-LEISTE  ·  zeigt Level-Nummer und kurze Info / Feedback
+    ========================================================================
+  -->
+  <section class="status">
+    <span id="levelAnzeige" class="status__level">Level 1</span>
+    <span id="meldung" class="status__meldung">Lege Befehle und drücke ▶︎</span>
+  </section>
+
+  <!--
+    ========================================================================
+    3. SPIELFELD (MAIN AREA)  ·  das Raster wird per JavaScript befüllt
+    ========================================================================
+    Das eigentliche Grid (Zellen + Katze + Fisch + Hindernisse) wird
+    dynamisch in game.js erzeugt und in diesen Container geschrieben.
+  -->
+  <main class="spielfeld-rahmen">
+    <div id="spielfeld" class="spielfeld" aria-label="Spielfeld"></div>
+  </main>
+
+  <!--
+    ========================================================================
+    4. AKTIONS-BUTTONS  ·  fügen je einen Befehl zur Warteschlange hinzu
+    ========================================================================
+    data-aktion enthält den Befehlstyp, den game.js auswertet.
+  -->
+  <section class="aktionen" aria-label="Aktionen">
+    <button class="aktion-btn" data-aktion="vor"   type="button">
+      <span class="aktion-btn__icon">⬆️</span>
+      <span class="aktion-btn__text">Schritt</span>
+    </button>
+    <button class="aktion-btn" data-aktion="links" type="button">
+      <span class="aktion-btn__icon">↩️</span>
+      <span class="aktion-btn__text">Links</span>
+    </button>
+    <button class="aktion-btn" data-aktion="rechts" type="button">
+      <span class="aktion-btn__icon">↪️</span>
+      <span class="aktion-btn__text">Rechts</span>
+    </button>
+  </section>
+
+  <!--
+    ========================================================================
+    5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE)
+    ========================================================================
+    Horizontal scrollbarer Bereich. Jeder Befehl erscheint hier als Block.
+    Ein Tipp auf einen Block löscht ihn wieder (siehe game.js).
+  -->
+  <section class="queue-bereich" aria-label="Befehls-Warteschlange">
+    <div class="queue-bereich__label">Dein Programm:</div>
+    <div id="queue" class="queue">
+      <!-- Platzhalter, solange noch kein Befehl gelegt wurde -->
+      <span id="queueLeer" class="queue__leer">Noch keine Befehle…</span>
+    </div>
+  </section>
+
+  <!--
+    ========================================================================
+    6. PLAY- / RESET-BUTTONS  ·  sehr präsent am unteren Rand
+    ========================================================================
+  -->
+  <footer class="steuerung">
+    <button id="resetBtn" class="steuer-btn steuer-btn--reset" type="button">
+      🧹 Löschen
+    </button>
+    <button id="playBtn" class="steuer-btn steuer-btn--play" type="button">
+      ▶︎ Start
+    </button>
+  </footer>
+
+  <!--
+    ========================================================================
+    7. GEWINN-OVERLAY  ·  erscheint bei erfolgreichem Level-Abschluss
+    ========================================================================
+    Wird per CSS-Klasse ein-/ausgeblendet (siehe game.js).
+  -->
+  <div id="gewinnOverlay" class="overlay" aria-hidden="true">
+    <div class="overlay__box">
+      <div class="overlay__emoji">🎉</div>
+      <h2 class="overlay__titel">Geschafft!</h2>
+      <p id="overlayText" class="overlay__text">Die Katze hat den Fisch gefunden!</p>
+      <button id="weiterBtn" class="steuer-btn steuer-btn--play" type="button">
+        Weiter ➜
+      </button>
+    </div>
+  </div>
+
+  <!-- Spiel-Logik ganz am Ende laden, damit das DOM bereits existiert -->
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,429 @@
+/* ==========================================================================
+   CODE-KATZE · style.css  ·  JONFIE STUDIOS
+   --------------------------------------------------------------------------
+   Design-Grundsätze:
+   - MOBILE FIRST: Layout ist für schmale Smartphone-Hochformate gebaut.
+   - Große Tap-Targets (mind. ~56px), keine fürs Spiel nötigen Hover-Effekte.
+   - Aufgeräumte, warme und freundliche Farbpalette (nicht überladen).
+   - Keine Bilddateien: Grafik nur über Emojis und CSS-Formen.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Farb- und Maß-Variablen zentral definiert (leicht anpassbar)
+   -------------------------------------------------------------------------- */
+:root {
+  --farbe-bg:        #fef6e4;  /* heller, warmer Hintergrund */
+  --farbe-panel:     #ffffff;  /* Flächen/Karten             */
+  --farbe-text:      #3d3a4b;  /* dunkles, weiches Anthrazit */
+  --farbe-akzent:    #ff8a5c;  /* freundliches Orange        */
+  --farbe-akzent-d:  #f96d3a;  /* dunkleres Orange (gedrückt)*/
+  --farbe-play:      #3ec96a;  /* Grün für Start             */
+  --farbe-play-d:    #2faa57;
+  --farbe-grid:      #cfe8e0;  /* Rasterlinien               */
+  --farbe-zelle:     #eafaf4;  /* freie Zelle                */
+  --farbe-ziel:      #fff3c4;  /* Zielfeld (Fisch)           */
+  --farbe-aktiv:     #ffd166;  /* hervorgehobener Queue-Block*/
+  --schatten:        0 4px 10px rgba(0, 0, 0, 0.12);
+  --radius:          14px;
+}
+
+/* --------------------------------------------------------------------------
+   Globales Zurücksetzen + sinnvolle Grundeinstellungen
+   -------------------------------------------------------------------------- */
+* {
+  box-sizing: border-box;     /* Padding zählt zur Gesamtbreite     */
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent; /* kein blaues Tap-Flackern */
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  /* Systemschrift = schnell, modern und auf jedem Gerät verfügbar */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  background: var(--farbe-bg);
+  color: var(--farbe-text);
+
+  /* Senkrechtes Flex-Layout: Header oben, Steuerung unten */
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  /* Verhindert ungewolltes Überscrollen/Wackeln beim Tippen */
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ==========================================================================
+   1. HEADER
+   ========================================================================== */
+.kopf {
+  text-align: center;
+  padding: 10px 12px 6px;
+}
+
+.kopf__studio {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--farbe-akzent-d);
+  font-weight: 700;
+}
+
+.kopf__titel {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   2. STATUS-LEISTE
+   ========================================================================== */
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 12px 8px;
+  padding: 8px 14px;
+  background: var(--farbe-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+}
+
+.status__level {
+  font-weight: 800;
+  color: var(--farbe-akzent-d);
+  white-space: nowrap;
+}
+
+.status__meldung {
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+/* Kleine "Wackel"-Animation für Fehlermeldungen (siehe game.js) */
+.status__meldung--fehler {
+  color: #e23b3b;
+  font-weight: 700;
+  animation: wackeln 0.4s ease;
+}
+
+@keyframes wackeln {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+
+/* ==========================================================================
+   3. SPIELFELD (GRID)
+   ========================================================================== */
+.spielfeld-rahmen {
+  /* Nimmt den verfügbaren Platz in der Mitte ein und zentriert das Grid */
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  min-height: 0; /* erlaubt dem Flex-Kind, bei Bedarf zu schrumpfen */
+}
+
+.spielfeld {
+  /* Das Grid ist immer quadratisch und passt sich der Breite an.
+     Die Anzahl der Spalten/Zeilen setzt game.js via Inline-Style. */
+  width: min(92vw, 70vh, 460px);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: var(--farbe-grid);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+}
+
+/* Einzelne Rasterzelle */
+.zelle {
+  background: var(--farbe-zelle);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Emoji-Größe skaliert mit der Zellengröße */
+  font-size: clamp(18px, 7vw, 40px);
+  position: relative;
+}
+
+/* Zielfeld leicht hervorheben */
+.zelle--ziel {
+  background: var(--farbe-ziel);
+}
+
+/*
+  Die Katze ist ein eigenes Element, das ÜBER den Zellen liegt und sanft
+  von Feld zu Feld gleitet. So lässt sich die Bewegung schön animieren.
+*/
+.katze {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(20px, 8vw, 46px);
+  /* weiche Bewegung beim Wechsel der Position und beim Drehen */
+  transition: transform 0.28s ease;
+  z-index: 5;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Kleiner Hüpfer, wenn die Katze gegen eine Wand/ein Hindernis läuft */
+.katze--bonk {
+  animation: bonk 0.35s ease;
+}
+
+@keyframes bonk {
+  0%, 100% { filter: none; }
+  50%      { filter: saturate(1.6) drop-shadow(0 0 6px #e23b3b); }
+}
+
+/* ==========================================================================
+   4. AKTIONS-BUTTONS
+   ========================================================================== */
+.aktionen {
+  display: flex;
+  gap: 10px;
+  padding: 6px 12px;
+}
+
+.aktion-btn {
+  flex: 1;                 /* alle drei gleich breit */
+  min-height: 60px;        /* großes Tap-Target      */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--farbe-panel);
+  border: 2px solid var(--farbe-grid);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  color: var(--farbe-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aktion-btn__icon { font-size: 1.5rem; line-height: 1; }
+.aktion-btn__text { font-size: 0.78rem; }
+
+/* Gedrückt-Zustand statt Hover (touch-freundlich) */
+.aktion-btn:active {
+  transform: scale(0.95);
+  border-color: var(--farbe-akzent);
+}
+
+/* ==========================================================================
+   5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE)
+   ========================================================================== */
+.queue-bereich {
+  margin: 4px 12px;
+}
+
+.queue-bereich__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--farbe-akzent-d);
+  margin-bottom: 4px;
+  padding-left: 4px;
+}
+
+.queue {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 62px;
+  padding: 8px;
+  background: var(--farbe-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+
+  /* Horizontal scrollbar, falls viele Befehle gelegt wurden */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch; /* sanftes Scrollen auf iOS */
+}
+
+.queue__leer {
+  color: #b7b2c4;
+  font-style: italic;
+  font-size: 0.88rem;
+  padding-left: 4px;
+}
+
+/* Einzelner Befehlsblock in der Warteschlange */
+.queue-block {
+  flex: 0 0 auto;          /* feste Größe, nicht stauchen */
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  background: var(--farbe-zelle);
+  border: 2px solid var(--farbe-grid);
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.queue-block:active { transform: scale(0.9); }
+
+/* Kleines Lösch-Kreuz oben rechts als Hinweis "antippen = entfernen" */
+.queue-block::after {
+  content: "×";
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  font-size: 0.8rem;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+  background: var(--farbe-akzent);
+  border-radius: 50%;
+}
+
+/* Der gerade ausgeführte Befehl wird kräftig hervorgehoben */
+.queue-block--aktiv {
+  background: var(--farbe-aktiv);
+  border-color: var(--farbe-akzent-d);
+  transform: scale(1.12);
+  box-shadow: 0 0 0 3px rgba(255, 138, 92, 0.35);
+}
+
+/* Während der Ausführung soll das Lösch-Kreuz nicht ablenken */
+.queue--laeuft .queue-block::after { display: none; }
+
+/* ==========================================================================
+   6. PLAY- / RESET-STEUERUNG
+   ========================================================================== */
+.steuerung {
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  /* Sicherheitsabstand für Geräte mit Notch/Home-Indicator unten */
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--farbe-bg);
+}
+
+.steuer-btn {
+  flex: 1;
+  min-height: 58px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--schatten);
+}
+
+.steuer-btn:active { transform: scale(0.97); }
+
+/* Reset-Button etwas kleiner/dezenter als der Start-Button */
+.steuer-btn--reset {
+  flex: 0 0 38%;
+  background: var(--farbe-akzent);
+}
+.steuer-btn--reset:active { background: var(--farbe-akzent-d); }
+
+.steuer-btn--play {
+  background: var(--farbe-play);
+}
+.steuer-btn--play:active { background: var(--farbe-play-d); }
+
+/* Deaktivierte Buttons (z. B. während die Katze läuft) */
+.steuer-btn:disabled,
+.aktion-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   7. GEWINN-OVERLAY
+   ========================================================================== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(61, 58, 75, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+
+  /* Standardmäßig unsichtbar; .overlay--sichtbar blendet es ein */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.overlay--sichtbar {
+  opacity: 1;
+  visibility: visible;
+}
+
+.overlay__box {
+  background: var(--farbe-panel);
+  border-radius: 22px;
+  padding: 28px 24px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: var(--schatten);
+  transform: scale(0.85);
+  transition: transform 0.25s ease;
+}
+
+.overlay--sichtbar .overlay__box {
+  transform: scale(1);
+}
+
+.overlay__emoji {
+  font-size: 3.2rem;
+  animation: hüpfen 0.6s ease infinite alternate;
+}
+
+@keyframes hüpfen {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-10px); }
+}
+
+.overlay__titel {
+  margin: 6px 0;
+  font-size: 1.6rem;
+}
+
+.overlay__text {
+  margin-bottom: 18px;
+  font-size: 0.95rem;
+}
+
+.overlay__box .steuer-btn {
+  width: 100%;
+}
+
+/* ==========================================================================
+   Anpassung für sehr kleine Geräte (Höhe), damit nichts abgeschnitten wird
+   ========================================================================== */
+@media (max-height: 640px) {
+  .kopf__titel       { font-size: 1.4rem; }
+  .aktion-btn        { min-height: 52px; }
+  .steuer-btn        { min-height: 52px; }
+  .queue             { min-height: 56px; }
+}
