@@ -39,10 +39,13 @@
 
   <!--
     ========================================================================
-    1. HEADER  ·  schlichter, moderner Schriftzug mit Wiedererkennungswert
+    1. HEADER  ·  schlichter, moderner Schriftzug + Einstellungs-Zahnrad
     ========================================================================
+    Das Zahnrad (⚙️) oben rechts öffnet die Einstellungen – ein
+    Wiedererkennungsmerkmal aus anderen Spielen von JonFie Studios.
   -->
   <header class="kopf">
+    <button id="settingsBtn" class="zahnrad" type="button" aria-label="Einstellungen öffnen">⚙️</button>
     <p class="kopf__studio">JonFie Studios präsentiert</p>
     <h1 class="kopf__titel">🐱 Code-Katze</h1>
   </header>
@@ -61,8 +64,8 @@
     ========================================================================
     3. SPIELFELD (MAIN AREA)  ·  das Raster wird per JavaScript befüllt
     ========================================================================
-    Das eigentliche Grid (Zellen + Katze + Fisch + Hindernisse) wird
-    dynamisch in game.js erzeugt und in diesen Container geschrieben.
+    Das eigentliche Grid (Zellen + Spur-Linie + Katze + Fisch + Hindernisse)
+    wird dynamisch in game.js erzeugt und in diesen Container geschrieben.
   -->
   <main class="spielfeld-rahmen">
     <div id="spielfeld" class="spielfeld" aria-label="Spielfeld"></div>
@@ -93,8 +96,8 @@
     ========================================================================
     5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE)
     ========================================================================
-    Horizontal scrollbarer Bereich. Jeder Befehl erscheint hier als Block.
-    Ein Tipp auf einen Block löscht ihn wieder (siehe game.js).
+    Der Bereich bricht bei Bedarf mehrzeilig um, damit das ganze "Programm"
+    auf einen Blick sichtbar ist. Ein Tipp auf einen Block löscht ihn wieder.
   -->
   <section class="queue-bereich" aria-label="Befehls-Warteschlange">
     <div class="queue-bereich__label">Dein Programm:</div>
@@ -122,7 +125,6 @@
     ========================================================================
     7. GEWINN-OVERLAY  ·  erscheint bei erfolgreichem Level-Abschluss
     ========================================================================
-    Wird per CSS-Klasse ein-/ausgeblendet (siehe game.js).
   -->
   <div id="gewinnOverlay" class="overlay" aria-hidden="true">
     <div class="overlay__box">
@@ -132,6 +134,65 @@
       <button id="weiterBtn" class="steuer-btn steuer-btn--play" type="button">
         Weiter ➜
       </button>
+    </div>
+  </div>
+
+  <!--
+    ========================================================================
+    8. EINSTELLUNGS-OVERLAY  ·  Schwierigkeit, Anzeige-Optionen, Symbol-Legende
+    ========================================================================
+  -->
+  <div id="settingsOverlay" class="overlay" aria-hidden="true">
+    <div class="overlay__box overlay__box--settings">
+      <button id="settingsClose" class="modal-close" type="button" aria-label="Einstellungen schließen">✕</button>
+      <h2 class="overlay__titel">⚙️ Einstellungen</h2>
+
+      <!-- Schwierigkeitsgrad (drei Farben – leicht/mittel/schwer) -->
+      <div class="setting-gruppe">
+        <div class="setting-titel">Schwierigkeit</div>
+        <div class="schwierigkeit-wahl">
+          <button class="schwer-btn schwer-btn--leicht" data-schwierigkeit="leicht" type="button">
+            <span class="schwer-btn__name">Leicht</span>
+            <span class="schwer-btn__alter">ab ~5 Jahren</span>
+          </button>
+          <button class="schwer-btn schwer-btn--mittel" data-schwierigkeit="mittel" type="button">
+            <span class="schwer-btn__name">Mittel</span>
+            <span class="schwer-btn__alter">ab ~7 Jahren</span>
+          </button>
+          <button class="schwer-btn schwer-btn--schwer" data-schwierigkeit="schwer" type="button">
+            <span class="schwer-btn__name">Schwer</span>
+            <span class="schwer-btn__alter">ab ~9 Jahren</span>
+          </button>
+        </div>
+        <p class="setting-hinweis">Ein Wechsel startet die neue Stufe bei Level 1.</p>
+      </div>
+
+      <!-- Anzeige-Optionen -->
+      <div class="setting-gruppe">
+        <div class="setting-titel">Anzeige</div>
+        <label class="schalter">
+          <span class="schalter__text">Gelaufene Spur anzeigen</span>
+          <input type="checkbox" id="spurToggle" />
+          <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
+        </label>
+      </div>
+
+      <!-- Symbol-Erklärung (Legende) -->
+      <div class="setting-gruppe">
+        <div class="setting-titel">Was bedeuten die Symbole?</div>
+        <ul class="legende">
+          <li><span class="legende__icon">🐱</span><span>Die Code-Katze – deine Spielfigur.</span></li>
+          <li><span class="legende__icon">🐟</span><span>Der Fisch – das Ziel jedes Levels.</span></li>
+          <li><span class="legende__icon">💧</span><span>Wasserpfütze – hier darf die Katze nicht hinein.</span></li>
+          <li><span class="legende__icon">🐶</span><span>Hund – ein Hindernis, das den Weg versperrt.</span></li>
+          <li><span class="legende__icon">⬆️</span><span>Ein Schritt nach vorne (in Blickrichtung).</span></li>
+          <li><span class="legende__icon">↩️</span><span>Die Katze nach links drehen.</span></li>
+          <li><span class="legende__icon">↪️</span><span>Die Katze nach rechts drehen.</span></li>
+          <li><span class="legende__icon">↺ ↻</span><span>Zeigen in der Spur, wo sich die Katze gedreht hat.</span></li>
+        </ul>
+      </div>
+
+      <button id="settingsFertig" class="steuer-btn steuer-btn--play" type="button">Fertig</button>
     </div>
   </div>
 
