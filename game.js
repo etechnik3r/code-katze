@@ -34,43 +34,50 @@
    Altersstufen) – wie die drei Farben in anderen JonFie-Spielen:
        leicht (grün)  · mittel (orange)  · schwer (rot)
    Neue Level lassen sich super einfach anhängen: einfach ein weiteres
-   Objekt mit { name, blick, karte } in die passende Liste eintragen.
+   Objekt mit { name, blick, karte, ziel } in die passende Liste eintragen.
+
+   'ziel' bestimmt, WAS die Katze am Zielfeld (Zeichen 'F') findet – nicht
+   immer nur ein Fisch, sondern auch andere Sachen, die Katzen mögen.
+   Es ist ein Objekt: { i: '🐟' (Emoji), n: 'den Fisch' (Name im Satz) }.
+   Fehlt 'ziel', wird automatisch der Fisch verwendet.
    -------------------------------------------------------------------------- */
+const STANDARD_ZIEL = { i: '🐟', n: 'den Fisch' };
+
 const SCHWIERIGKEITEN = {
 
   leicht: {
     label: 'Leicht',
     farbe: '#3ec96a',
     levels: [
-      { name: 'Geradeaus', blick: 1, karte: [
+      { name: 'Geradeaus', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         '.....',
         '.....',
         'K...F',
         '.....',
         '.....',
       ]},
-      { name: 'Nach oben', blick: 0, karte: [
+      { name: 'Nach oben', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         'F....',
         '.....',
         '.....',
         '.....',
         'K....',
       ]},
-      { name: 'Um die Ecke', blick: 1, karte: [
+      { name: 'Um die Ecke', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '.....',
         '.....',
         'K....',
         '.....',
         '....F',
       ]},
-      { name: 'Große Kurve', blick: 1, karte: [
+      { name: 'Große Kurve', blick: 1, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '....F',
         '.....',
         '.....',
         '.....',
         'K....',
       ]},
-      { name: 'Erste Pfütze', blick: 1, karte: [
+      { name: 'Erste Pfütze', blick: 1, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
         '.....',
         '.....',
         'K.W.F',
@@ -84,35 +91,35 @@ const SCHWIERIGKEITEN = {
     label: 'Mittel',
     farbe: '#ff8a5c',
     levels: [
-      { name: 'Um die Ecke', blick: 1, karte: [
+      { name: 'Um die Ecke', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '.....',
         '...F.',
         'K....',
         '.....',
         '.....',
       ]},
-      { name: 'Pfütze im Weg', blick: 1, karte: [
+      { name: 'Pfütze im Weg', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         '.....',
         '..W..',
         'K.WF.',
         '..W..',
         '.....',
       ]},
-      { name: 'Der wachsame Hund', blick: 0, karte: [
+      { name: 'Der wachsame Hund', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         '..F..',
         '..W..',
         'K.H..',
         '.....',
         '.....',
       ]},
-      { name: 'Zickzack', blick: 1, karte: [
+      { name: 'Zickzack', blick: 1, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
         'K...W',
         'WWW.W',
         '..W..',
         '.WW.W',
         '...F.',
       ]},
-      { name: 'Kleines Labyrinth', blick: 1, karte: [
+      { name: 'Kleines Labyrinth', blick: 1, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         'K.W..',
         '..WW.',
         '.....',
@@ -126,7 +133,7 @@ const SCHWIERIGKEITEN = {
     label: 'Schwer',
     farbe: '#e23b3b',
     levels: [
-      { name: 'Verschlungen', blick: 1, karte: [
+      { name: 'Verschlungen', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         'K..WWW',
         'WW.W.W',
         'W....W',
@@ -134,7 +141,7 @@ const SCHWIERIGKEITEN = {
         'WWWW..',
         'WWWWWF',
       ]},
-      { name: 'Der Irrgarten', blick: 1, karte: [
+      { name: 'Der Irrgarten', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         'K....W',
         'WWWW.W',
         'W....W',
@@ -142,7 +149,7 @@ const SCHWIERIGKEITEN = {
         'W....W',
         'WWWW.F',
       ]},
-      { name: 'Großes Abenteuer', blick: 1, karte: [
+      { name: 'Großes Abenteuer', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         'K..W..',
         'HW.W.W',
         '...W..',
@@ -150,7 +157,7 @@ const SCHWIERIGKEITEN = {
         '.....W',
         'WWWW.F',
       ]},
-      { name: 'Meisterprüfung', blick: 1, karte: [
+      { name: 'Meisterprüfung', blick: 1, ziel: { i: '🐟', n: 'den großen Fisch' }, karte: [
         'K......',
         'WWWWWW.',
         '.......',
@@ -197,10 +204,20 @@ let laeuft = false;
 let spurPfad   = [];      // Liste besuchter Felder: [{ z, s }, …]
 let drehMarker = [];      // Drehpunkte: [{ z, s, typ:'links'|'rechts' }, …]
 
+// Das aktuelle Ziel (Emoji + Name), wird pro Level gesetzt:
+let aktuellesZiel = STANDARD_ZIEL;
+
 // Vom Nutzer wählbare Einstellungen (werden im Browser gespeichert):
 let einstellungen = {
   spurAnzeigen: true,
+  profiModus:   false,   // Schleifen & Logik-Bausteine freischalten
 };
+
+// Grund des letzten Fehlschlags (wird vom Interpreter gesetzt):
+let fehlerGrund = '';
+
+// Die Befehlsblöcke der Queue als DOM-Liste (für die Hervorhebung im Lauf):
+let queueBloecke = [];
 
 
 /* ==========================================================================
@@ -225,6 +242,8 @@ const elSettingsOverlay= document.getElementById('settingsOverlay');
 const elSettingsClose  = document.getElementById('settingsClose');
 const elSettingsFertig = document.getElementById('settingsFertig');
 const elSpurToggle     = document.getElementById('spurToggle');
+const elProfiToggle    = document.getElementById('profiToggle');
+const elProfiAktionen  = document.getElementById('profiAktionen');
 
 // Diese Elemente werden bei jedem Levelaufbau neu erzeugt:
 let elKatze = null;   // die CSS-Katze
@@ -253,6 +272,9 @@ function ladeLevel(index) {
   raster        = level.karte.map((zeile) => zeile.split(''));
   zeilenAnzahl  = raster.length;
   spaltenAnzahl = raster[0].length;
+
+  // Ziel dieses Levels merken (Fisch, Milch, Maus … – Standard: Fisch).
+  aktuellesZiel = level.ziel || STANDARD_ZIEL;
 
   // 2) Start-Position & -Blickrichtung der Katze aus der Karte ermitteln.
   startBlick = level.blick;
@@ -299,7 +321,7 @@ function zeichneRaster() {
       const inhalt = raster[z][s];
       if (inhalt === 'F') {
         zelle.classList.add('zelle--ziel');
-        zelle.textContent = '🐟';
+        zelle.textContent = aktuellesZiel.i;   // variables Ziel-Emoji
       } else if (inhalt === 'W') {
         zelle.textContent = '💧';
       } else if (inhalt === 'H') {
@@ -386,7 +408,26 @@ function zeichneKatze() {
    angezeigt. Erst der Start-Button arbeitet diese Liste später ab.
    -------------------------------------------------------------------------- */
 
-const BEFEHL_EMOJI = { vor: '⬆️', links: '↩️', rechts: '↪️' };
+/*
+  Info zu jedem Baustein-Typ: Beschriftung in der Queue + optische Klasse.
+  Basis-Bausteine (vor/links/rechts) sowie die Profi-Bausteine (Schleifen,
+  Logik, Klammer zu). Die Dreh-Symbole ↺/↻ sind bewusst eindeutig gewählt:
+      ↺ = Linksdrehung (gegen den Uhrzeigersinn)
+      ↻ = Rechtsdrehung (im Uhrzeigersinn)
+*/
+const BLOCK_INFO = {
+  vor:      { text: '⬆️',    klasse: '' },
+  links:    { text: '↺',     klasse: '' },
+  rechts:   { text: '↻',     klasse: '' },
+  loop2:    { text: '🔁2 (', klasse: 'queue-block--logik' },
+  loop3:    { text: '🔁3 (', klasse: 'queue-block--logik' },
+  loopZiel: { text: '🎯 (',  klasse: 'queue-block--logik' },
+  wennFrei: { text: '❓ (',  klasse: 'queue-block--logik' },
+  ende:     { text: ')',     klasse: 'queue-block--klammer' },
+};
+
+// Welche Baustein-Typen öffnen eine Klammer (Schleife/Logik)?
+const OEFFNER = new Set(['loop2', 'loop3', 'loopZiel', 'wennFrei']);
 
 /** Hängt einen neuen Befehl an die Warteschlange an. */
 function fuegeBefehlHinzu(typ) {
@@ -414,9 +455,10 @@ function zeichneQueue() {
   }
 
   befehlsQueue.forEach((typ, index) => {
+    const info = BLOCK_INFO[typ];
     const block = document.createElement('div');
-    block.className = 'queue-block';
-    block.textContent = BEFEHL_EMOJI[typ];
+    block.className = 'queue-block' + (info.klasse ? ' ' + info.klasse : '');
+    block.textContent = info.text;
     block.dataset.index = index;              // welchen Befehl löschen?
     block.addEventListener('click', () => loescheBefehl(index));
     elQueue.appendChild(block);
@@ -446,11 +488,31 @@ function warte(ms) {
   return new Promise((aufloesen) => setTimeout(aufloesen, ms));
 }
 
-/** Startet die Abarbeitung der Warteschlange. */
+// Sicherheitsgrenze für die "bis Ziel"-Schleife, damit sie nie ewig läuft.
+const MAX_ZIEL_WIEDERHOLUNGEN = 60;
+
+/**
+ * Startet die Abarbeitung der Warteschlange.
+ *
+ * Ablauf:
+ *   1. Klammern prüfen (Schleifen/Logik müssen sauber geschlossen sein).
+ *   2. Aus der flachen Befehlsliste einen verschachtelten "Baum" (AST) bauen.
+ *   3. Diesen Baum rekursiv und zeitgesteuert ausführen.
+ * Der Rückgabewert der Ausführung steuert das Ende:
+ *   'gewonnen' -> Ziel erreicht · 'fehler' -> Hindernis/Problem · 'weiter'
+ *   -> alles abgearbeitet, aber Ziel nicht erreicht.
+ */
 async function starteAusführung() {
   if (laeuft) return;
   if (befehlsQueue.length === 0) {
     setzeMeldung('Lege zuerst ein paar Befehle! 🧩', true);
+    return;
+  }
+
+  // 1) Klammern der Schleifen/Logikblöcke prüfen.
+  const klammerFehler = pruefeKlammern();
+  if (klammerFehler) {
+    setzeMeldung(klammerFehler, true);
     return;
   }
 
@@ -466,45 +528,171 @@ async function starteAusführung() {
   zeichneSpur();
   setzeMeldung('Die Katze läuft… 🐾', false);
 
+  // Alle Blöcke einsammeln (für die Hervorhebung des aktiven Bausteins).
+  queueBloecke = elQueue.querySelectorAll('.queue-block');
+  fehlerGrund = '';
+
   await warte(300); // kurz die Startstellung zeigen
 
-  const bloecke = elQueue.querySelectorAll('.queue-block');
+  // 2) Baum bauen und 3) ausführen.
+  const programm = baueProgramm();
+  const status = await fuehreProgramm(programm);
 
-  // --- Schleife über alle Befehle ---
-  for (let i = 0; i < befehlsQueue.length; i++) {
-    // a) Aktuellen Block hervorheben.
-    bloecke.forEach((b) => b.classList.remove('queue-block--aktiv'));
-    if (bloecke[i]) {
-      bloecke[i].classList.add('queue-block--aktiv');
-      bloecke[i].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+  // Auswertung des Endergebnisses.
+  if (status === 'gewonnen') {
+    await levelGeschafft();
+  } else if (status === 'fehler') {
+    await fehlversuch(fehlerGrund);
+  } else {
+    await fehlversuch('Die Befehle sind zu Ende – aber das Ziel ist nicht erreicht!');
+  }
+}
 
-    // b) Befehl ausführen (verändert Position/Blickrichtung + Spur).
-    const befehl = befehlsQueue[i];
-    const ergebnis = fuehreBefehlAus(befehl);
-
-    // c) Bewegung + Spur anzeigen.
-    zeichneKatze();
-    zeichneSpur();
-
-    // d) Warten, damit der Schritt sichtbar ist.
-    await warte(SCHRITT_DELAY);
-
-    // e) Ungültiger Schritt (Wand/Hindernis)? -> abbrechen.
-    if (!ergebnis.gueltig) {
-      await fehlversuch(ergebnis.grund);
-      return; // Queue bleibt erhalten!
-    }
-
-    // f) Fisch erreicht? -> gewonnen.
-    if (raster[katzeZeile][katzeSpalte] === 'F') {
-      await levelGeschafft();
-      return;
+/**
+ * Prüft, ob alle Schleifen-/Logik-Klammern sauber geöffnet und geschlossen
+ * sind. Gibt bei einem Problem eine kindgerechte Meldung zurück, sonst null.
+ */
+function pruefeKlammern() {
+  let tiefe = 0;
+  for (const typ of befehlsQueue) {
+    if (OEFFNER.has(typ)) {
+      tiefe++;
+    } else if (typ === 'ende') {
+      tiefe--;
+      if (tiefe < 0) return 'Eine „)" hat keine passende Schleife davor. 🧩';
     }
   }
+  if (tiefe > 0) return 'Es fehlt noch eine schließende „)". 🧩';
+  return null;
+}
 
-  // --- Queue abgearbeitet, Ziel nicht erreicht ---
-  await fehlversuch('Die Befehle sind zu Ende – aber kein Fisch in Sicht!');
+/**
+ * Baut aus der flachen 'befehlsQueue' einen verschachtelten Programmbaum.
+ * Jeder Knoten merkt sich seinen Platz (index) in der Queue, damit der
+ * passende Block beim Ausführen hervorgehoben werden kann.
+ *
+ * Knoten-Formen:
+ *   { art:'simpel', typ, index }
+ *   { art:'block',  typ, index, kinder:[…] }
+ */
+function baueProgramm() {
+  // Tokens mit ihrer ursprünglichen Position in der Queue.
+  const tokens = befehlsQueue.map((typ, index) => ({ typ, index }));
+  let i = 0;
+
+  function leseListe() {
+    const liste = [];
+    while (i < tokens.length && tokens[i].typ !== 'ende') {
+      const t = tokens[i];
+      if (OEFFNER.has(t.typ)) {
+        i++;                       // Öffner überspringen
+        const kinder = leseListe();
+        if (i < tokens.length && tokens[i].typ === 'ende') i++; // ')' überspringen
+        liste.push({ art: 'block', typ: t.typ, index: t.index, kinder });
+      } else {
+        liste.push({ art: 'simpel', typ: t.typ, index: t.index });
+        i++;
+      }
+    }
+    return liste;
+  }
+
+  return leseListe();
+}
+
+/**
+ * Führt eine Liste von Knoten NACHEINANDER aus.
+ * Gibt den Status des ersten "besonderen" Ereignisses zurück
+ * ('gewonnen' | 'fehler') oder 'weiter', wenn alles normal durchlief.
+ */
+async function fuehreProgramm(knoten) {
+  for (const k of knoten) {
+    const status = await fuehreKnoten(k);
+    if (status !== 'weiter') return status;   // sofort nach oben durchreichen
+  }
+  return 'weiter';
+}
+
+/**
+ * Führt EINEN Knoten aus: entweder einen einfachen Befehl oder einen ganzen
+ * Block (Schleife/Bedingung), der wiederum Kinder enthält (Rekursion!).
+ */
+async function fuehreKnoten(k) {
+  // --- einfacher Baustein (vor / links / rechts) ---
+  if (k.art === 'simpel') {
+    hebeBlockHervor(k.index);
+    const ergebnis = fuehreBefehlAus(k.typ);
+    zeichneKatze();
+    zeichneSpur();
+    await warte(SCHRITT_DELAY);
+
+    if (!ergebnis.gueltig) { fehlerGrund = ergebnis.grund; return 'fehler'; }
+    if (raster[katzeZeile][katzeSpalte] === 'F') return 'gewonnen';
+    return 'weiter';
+  }
+
+  // --- Block-Bausteine ---
+
+  // Wiederhol-Schleife mit fester Anzahl (2× oder 3×).
+  if (k.typ === 'loop2' || k.typ === 'loop3') {
+    const anzahl = (k.typ === 'loop2') ? 2 : 3;
+    for (let runde = 0; runde < anzahl; runde++) {
+      hebeBlockHervor(k.index);
+      await warte(230);
+      const status = await fuehreProgramm(k.kinder);
+      if (status !== 'weiter') return status;
+    }
+    return 'weiter';
+  }
+
+  // "bis Ziel": wiederholt den Inhalt, bis das Ziel erreicht ist.
+  if (k.typ === 'loopZiel') {
+    if (k.kinder.length === 0) {
+      fehlerGrund = 'Die „bis Ziel"-Schleife ist leer. Lege Befehle hinein! 🧩';
+      return 'fehler';
+    }
+    for (let runde = 0; runde < MAX_ZIEL_WIEDERHOLUNGEN; runde++) {
+      hebeBlockHervor(k.index);
+      await warte(230);
+      const status = await fuehreProgramm(k.kinder);
+      if (status !== 'weiter') return status;   // gewonnen oder fehler
+    }
+    fehlerGrund = 'Die Schleife lief sehr oft, ohne das Ziel zu finden. 🔁';
+    return 'fehler';
+  }
+
+  // "wenn frei": Inhalt nur ausführen, wenn das Feld vor der Katze frei ist.
+  if (k.typ === 'wennFrei') {
+    hebeBlockHervor(k.index);
+    await warte(230);
+    if (istVorneFrei()) {
+      return await fuehreProgramm(k.kinder);
+    }
+    return 'weiter';   // Bedingung nicht erfüllt -> Inhalt überspringen
+  }
+
+  return 'weiter';
+}
+
+/** Hebt den Block an Position 'index' in der Queue hervor (aktiver Schritt). */
+function hebeBlockHervor(index) {
+  queueBloecke.forEach((b) => b.classList.remove('queue-block--aktiv'));
+  const block = queueBloecke[index];
+  if (block) {
+    block.classList.add('queue-block--aktiv');
+    block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+/** Prüft, ob das Feld direkt vor der Katze frei (begehbar) ist. */
+function istVorneFrei() {
+  const dz = [-1, 0, 1, 0][katzeBlick];
+  const ds = [0, 1, 0, -1][katzeBlick];
+  const z = katzeZeile + dz;
+  const s = katzeSpalte + ds;
+  if (z < 0 || z >= zeilenAnzahl || s < 0 || s >= spaltenAnzahl) return false;
+  const feld = raster[z][s];
+  return feld !== 'W' && feld !== 'H';
 }
 
 /**
@@ -661,9 +849,9 @@ async function fehlversuch(grund) {
   beendeAusführung();
 }
 
-/** Die Katze hat den Fisch erreicht. */
+/** Die Katze hat das Ziel erreicht. */
 async function levelGeschafft() {
-  setzeMeldung('Super gemacht! 🐟', false);
+  setzeMeldung('Super gemacht! ' + aktuellesZiel.i, false);
   await warte(400);
 
   const istLetztes = aktuellesLevel >= aktuelleLevels().length - 1;
@@ -672,7 +860,8 @@ async function levelGeschafft() {
       'Du hast ALLE Level dieser Stufe gelöst. Probiere im ⚙️ die nächste Schwierigkeit! 🌟';
     elWeiterBtn.textContent = 'Von vorne ↺';
   } else {
-    elOverlayText.textContent = 'Die Katze hat den Fisch gefunden! Bereit für das nächste Level?';
+    elOverlayText.textContent =
+      'Die Katze hat ' + aktuellesZiel.n + ' gefunden! Bereit für das nächste Level?';
     elWeiterBtn.textContent = 'Weiter ➜';
   }
 
@@ -722,6 +911,9 @@ function ladeEinstellungen() {
     if (typeof daten.spurAnzeigen === 'boolean') {
       einstellungen.spurAnzeigen = daten.spurAnzeigen;
     }
+    if (typeof daten.profiModus === 'boolean') {
+      einstellungen.profiModus = daten.profiModus;
+    }
   } catch (e) {
     /* Speicher nicht verfügbar (z. B. privater Modus) – dann Standardwerte. */
   }
@@ -733,6 +925,7 @@ function speichereEinstellungen() {
     localStorage.setItem(SPEICHER_KEY, JSON.stringify({
       schwierigkeit: aktuelleSchwierigkeit,
       spurAnzeigen:  einstellungen.spurAnzeigen,
+      profiModus:    einstellungen.profiModus,
     }));
   } catch (e) { /* still ignorieren */ }
 }
@@ -744,11 +937,33 @@ function aktualisiereEinstellungsUI() {
     btn.classList.toggle('schwer-btn--aktiv',
       btn.dataset.schwierigkeit === aktuelleSchwierigkeit);
   });
-  // Spur-Schalter (Checkbox) auf den aktuellen Wert setzen.
-  elSpurToggle.checked = einstellungen.spurAnzeigen;
+  // Schalter (Checkboxen) auf die aktuellen Werte setzen.
+  elSpurToggle.checked  = einstellungen.spurAnzeigen;
+  elProfiToggle.checked = einstellungen.profiModus;
+  // Profi-Baustein-Reihe passend zum Modus ein-/ausblenden.
+  elProfiAktionen.hidden = !einstellungen.profiModus;
   // Farbpunkt der Level-Anzeige an die Schwierigkeit anpassen.
   elLevel.style.setProperty('--schwierigkeit-farbe',
     SCHWIERIGKEITEN[aktuelleSchwierigkeit].farbe);
+}
+
+/**
+ * Schaltet den Profi-Modus um. Zusätzliche Bausteine erscheinen bzw.
+ * verschwinden. Da sich die verfügbaren Bausteine ändern, wird das aktuelle
+ * Programm geleert (sonst blieben evtl. nun versteckte Schleifen zurück).
+ */
+function setzeProfiModus(an) {
+  einstellungen.profiModus = an;
+  elProfiAktionen.hidden = !an;
+  befehlsQueue = [];
+  zeichneQueue();
+  loescheSpur();
+  setzeKatzeAufStart();
+  speichereEinstellungen();
+  const text = an
+    ? 'Profi-Modus an: Schleifen & Logik freigeschaltet! 🧠'
+    : 'Profi-Modus aus. Zurück zu den Grundbausteinen. ✨';
+  setzeMeldung(text, false);
 }
 
 /** Wechselt die Schwierigkeit und startet bei Level 1 der neuen Stufe. */
@@ -824,6 +1039,11 @@ function verbindeButtons() {
     einstellungen.spurAnzeigen = elSpurToggle.checked;
     speichereEinstellungen();
     zeichneSpur();   // sofort ein-/ausblenden
+  });
+
+  // Profi-Modus-Schalter.
+  elProfiToggle.addEventListener('change', () => {
+    setzeProfiModus(elProfiToggle.checked);
   });
 }
 

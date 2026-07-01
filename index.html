@@ -82,13 +82,44 @@
       <span class="aktion-btn__icon">⬆️</span>
       <span class="aktion-btn__text">Schritt</span>
     </button>
+    <!-- ↺ = Linksdrehung (gegen den Uhrzeigersinn), ↻ = Rechtsdrehung -->
     <button class="aktion-btn" data-aktion="links" type="button">
-      <span class="aktion-btn__icon">↩️</span>
+      <span class="aktion-btn__icon aktion-btn__icon--dreh">↺</span>
       <span class="aktion-btn__text">Links</span>
     </button>
     <button class="aktion-btn" data-aktion="rechts" type="button">
-      <span class="aktion-btn__icon">↪️</span>
+      <span class="aktion-btn__icon aktion-btn__icon--dreh">↻</span>
       <span class="aktion-btn__text">Rechts</span>
+    </button>
+  </section>
+
+  <!--
+    ========================================================================
+    4b. PROFI-BAUSTEINE  ·  nur im Profi-Modus sichtbar (siehe Einstellungen)
+    ========================================================================
+    Schleifen und Logikblöcke arbeiten mit Klammern: ein Öffner-Baustein "("
+    und der Schließer ")". Alles zwischen den Klammern gehört zusammen.
+  -->
+  <section id="profiAktionen" class="aktionen aktionen--profi" aria-label="Profi-Bausteine" hidden>
+    <button class="aktion-btn aktion-btn--logik" data-aktion="loop2" type="button">
+      <span class="aktion-btn__icon">🔁</span>
+      <span class="aktion-btn__text">2× (</span>
+    </button>
+    <button class="aktion-btn aktion-btn--logik" data-aktion="loop3" type="button">
+      <span class="aktion-btn__icon">🔁</span>
+      <span class="aktion-btn__text">3× (</span>
+    </button>
+    <button class="aktion-btn aktion-btn--logik" data-aktion="loopZiel" type="button">
+      <span class="aktion-btn__icon">🎯</span>
+      <span class="aktion-btn__text">bis Ziel (</span>
+    </button>
+    <button class="aktion-btn aktion-btn--logik" data-aktion="wennFrei" type="button">
+      <span class="aktion-btn__icon">❓</span>
+      <span class="aktion-btn__text">wenn frei (</span>
+    </button>
+    <button class="aktion-btn aktion-btn--klammer" data-aktion="ende" type="button">
+      <span class="aktion-btn__icon">）</span>
+      <span class="aktion-btn__text">Ende )</span>
     </button>
   </section>
 
@@ -177,18 +208,36 @@
         </label>
       </div>
 
+      <!-- Spielmodus: Profi-Modus mit Schleifen & Logik -->
+      <div class="setting-gruppe">
+        <div class="setting-titel">Spielmodus</div>
+        <label class="schalter">
+          <span class="schalter__text">Profi-Modus (Schleifen &amp; Logik)</span>
+          <input type="checkbox" id="profiToggle" />
+          <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
+        </label>
+        <p class="setting-hinweis">Schaltet zusätzliche Bausteine frei: Wiederhol-Schleifen
+          (2×, 3×), „bis Ziel" und „wenn frei". Ein Wechsel leert das aktuelle Programm.</p>
+      </div>
+
       <!-- Symbol-Erklärung (Legende) -->
       <div class="setting-gruppe">
         <div class="setting-titel">Was bedeuten die Symbole?</div>
         <ul class="legende">
           <li><span class="legende__icon">🐱</span><span>Die Code-Katze – deine Spielfigur.</span></li>
-          <li><span class="legende__icon">🐟</span><span>Der Fisch – das Ziel jedes Levels.</span></li>
+          <li><span class="legende__icon">🐟🥛🐭</span><span>Das Ziel – was Katzen mögen (Fisch, Milch, Maus, Wollknäuel …).</span></li>
           <li><span class="legende__icon">💧</span><span>Wasserpfütze – hier darf die Katze nicht hinein.</span></li>
           <li><span class="legende__icon">🐶</span><span>Hund – ein Hindernis, das den Weg versperrt.</span></li>
           <li><span class="legende__icon">⬆️</span><span>Ein Schritt nach vorne (in Blickrichtung).</span></li>
-          <li><span class="legende__icon">↩️</span><span>Die Katze nach links drehen.</span></li>
-          <li><span class="legende__icon">↪️</span><span>Die Katze nach rechts drehen.</span></li>
-          <li><span class="legende__icon">↺ ↻</span><span>Zeigen in der Spur, wo sich die Katze gedreht hat.</span></li>
+          <li><span class="legende__icon">↺</span><span>Die Katze nach links drehen (gegen den Uhrzeigersinn).</span></li>
+          <li><span class="legende__icon">↻</span><span>Die Katze nach rechts drehen (im Uhrzeigersinn).</span></li>
+        </ul>
+        <div class="setting-titel setting-titel--klein">Profi-Bausteine</div>
+        <ul class="legende">
+          <li><span class="legende__icon">🔁(</span><span>Wiederhol-Schleife: Alles bis zur „)" wird 2× bzw. 3× wiederholt.</span></li>
+          <li><span class="legende__icon">🎯(</span><span>„bis Ziel": Der Inhalt wird so lange wiederholt, bis das Ziel erreicht ist.</span></li>
+          <li><span class="legende__icon">❓(</span><span>„wenn frei": Der Inhalt läuft nur, wenn das Feld vor der Katze frei ist.</span></li>
+          <li><span class="legende__icon">）</span><span>Ende-Klammer – schließt eine Schleife oder einen Logikblock.</span></li>
         </ul>
       </div>
 
