@@ -113,9 +113,17 @@
       <span class="aktion-btn__icon">🎯</span>
       <span class="aktion-btn__text">bis Ziel (</span>
     </button>
+    <button class="aktion-btn aktion-btn--logik" data-aktion="solangeFrei" type="button">
+      <span class="aktion-btn__icon">➰</span>
+      <span class="aktion-btn__text">solange frei (</span>
+    </button>
     <button class="aktion-btn aktion-btn--logik" data-aktion="wennFrei" type="button">
       <span class="aktion-btn__icon">❓</span>
       <span class="aktion-btn__text">wenn frei (</span>
+    </button>
+    <button class="aktion-btn aktion-btn--logik" data-aktion="wennWand" type="button">
+      <span class="aktion-btn__icon">🧱</span>
+      <span class="aktion-btn__text">wenn Wand (</span>
     </button>
     <button class="aktion-btn aktion-btn--klammer" data-aktion="ende" type="button">
       <span class="aktion-btn__icon">）</span>
@@ -161,10 +169,19 @@
     <div class="overlay__box">
       <div class="overlay__emoji">🎉</div>
       <h2 class="overlay__titel">Geschafft!</h2>
+      <!-- Sterne-Bewertung (per JS gefüllt: ★ = erreicht, ☆ = offen) -->
+      <div id="sterne" class="sterne" aria-label="Bewertung"></div>
       <p id="overlayText" class="overlay__text">Die Katze hat den Fisch gefunden!</p>
-      <button id="weiterBtn" class="steuer-btn steuer-btn--play" type="button">
-        Weiter ➜
-      </button>
+      <!-- Effizienz-Rückmeldung (Bausteine vs. Bestwert) -->
+      <p id="bewertungText" class="bewertung-text"></p>
+      <div class="overlay__buttons">
+        <button id="nochmalBtn" class="steuer-btn steuer-btn--reset" type="button">
+          ↻ Nochmal
+        </button>
+        <button id="weiterBtn" class="steuer-btn steuer-btn--play" type="button">
+          Weiter ➜
+        </button>
+      </div>
     </div>
   </div>
 
@@ -236,9 +253,13 @@
         <ul class="legende">
           <li><span class="legende__icon">🔁(</span><span>Wiederhol-Schleife: Alles bis zur „)" wird 2× bzw. 3× wiederholt.</span></li>
           <li><span class="legende__icon">🎯(</span><span>„bis Ziel": Der Inhalt wird so lange wiederholt, bis das Ziel erreicht ist.</span></li>
-          <li><span class="legende__icon">❓(</span><span>„wenn frei": Der Inhalt läuft nur, wenn das Feld vor der Katze frei ist.</span></li>
+          <li><span class="legende__icon">➰(</span><span>„solange frei": Wiederholt den Inhalt, solange das Feld voraus frei ist.</span></li>
+          <li><span class="legende__icon">❓(</span><span>„wenn frei": Der Inhalt läuft nur, wenn das Feld voraus frei ist.</span></li>
+          <li><span class="legende__icon">🧱(</span><span>„wenn Wand": Der Inhalt läuft nur, wenn voraus eine Wand/ein Hindernis ist.</span></li>
           <li><span class="legende__icon">）</span><span>Ende-Klammer – schließt eine Schleife oder einen Logikblock.</span></li>
         </ul>
+        <p class="setting-hinweis">⭐ Tipp: Weniger Bausteine = bessere Bewertung.
+          Nutze Schleifen, statt viele gleiche Blöcke zu legen!</p>
       </div>
 
       <button id="settingsFertig" class="steuer-btn steuer-btn--play" type="button">Fertig</button>

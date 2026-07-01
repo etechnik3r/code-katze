@@ -232,9 +232,12 @@ const elPlayBtn     = document.getElementById('playBtn');
 const elResetBtn    = document.getElementById('resetBtn');
 
 // Gewinn-Overlay
-const elOverlay     = document.getElementById('gewinnOverlay');
-const elOverlayText = document.getElementById('overlayText');
-const elWeiterBtn   = document.getElementById('weiterBtn');
+const elOverlay      = document.getElementById('gewinnOverlay');
+const elOverlayText  = document.getElementById('overlayText');
+const elWeiterBtn    = document.getElementById('weiterBtn');
+const elSterne       = document.getElementById('sterne');
+const elBewertung    = document.getElementById('bewertungText');
+const elNochmalBtn   = document.getElementById('nochmalBtn');
 
 // Einstellungs-Overlay
 const elSettingsBtn    = document.getElementById('settingsBtn');
@@ -416,18 +419,20 @@ function zeichneKatze() {
       ↻ = Rechtsdrehung (im Uhrzeigersinn)
 */
 const BLOCK_INFO = {
-  vor:      { text: '⬆️',    klasse: '' },
-  links:    { text: '↺',     klasse: '' },
-  rechts:   { text: '↻',     klasse: '' },
-  loop2:    { text: '🔁2 (', klasse: 'queue-block--logik' },
-  loop3:    { text: '🔁3 (', klasse: 'queue-block--logik' },
-  loopZiel: { text: '🎯 (',  klasse: 'queue-block--logik' },
-  wennFrei: { text: '❓ (',  klasse: 'queue-block--logik' },
-  ende:     { text: ')',     klasse: 'queue-block--klammer' },
+  vor:         { text: '⬆️',     klasse: '' },
+  links:       { text: '↺',      klasse: '' },
+  rechts:      { text: '↻',      klasse: '' },
+  loop2:       { text: '🔁2 (',  klasse: 'queue-block--logik' },
+  loop3:       { text: '🔁3 (',  klasse: 'queue-block--logik' },
+  loopZiel:    { text: '🎯 (',   klasse: 'queue-block--logik' },
+  solangeFrei: { text: '➰ (',   klasse: 'queue-block--logik' },
+  wennFrei:    { text: '❓ (',   klasse: 'queue-block--logik' },
+  wennWand:    { text: '🧱 (',   klasse: 'queue-block--logik' },
+  ende:        { text: ')',      klasse: 'queue-block--klammer' },
 };
 
 // Welche Baustein-Typen öffnen eine Klammer (Schleife/Logik)?
-const OEFFNER = new Set(['loop2', 'loop3', 'loopZiel', 'wennFrei']);
+const OEFFNER = new Set(['loop2', 'loop3', 'loopZiel', 'solangeFrei', 'wennFrei', 'wennWand']);
 
 /** Hängt einen neuen Befehl an die Warteschlange an. */
 function fuegeBefehlHinzu(typ) {
@@ -661,6 +666,27 @@ async function fuehreKnoten(k) {
     return 'fehler';
   }
 
+  // "solange frei": wiederholt den Inhalt, SOLANGE das Feld voraus frei ist
+  // (eine "while"-Schleife). Sicherheitsgrenze gegen Endlosschleifen.
+  if (k.typ === 'solangeFrei') {
+    if (k.kinder.length === 0) {
+      fehlerGrund = 'Die „solange frei"-Schleife ist leer. Lege Befehle hinein! 🧩';
+      return 'fehler';
+    }
+    let runden = 0;
+    while (istVorneFrei()) {
+      if (runden++ >= MAX_ZIEL_WIEDERHOLUNGEN) {
+        fehlerGrund = 'Die Schleife lief sehr oft, ohne anzuhalten. 🔁';
+        return 'fehler';
+      }
+      hebeBlockHervor(k.index);
+      await warte(230);
+      const status = await fuehreProgramm(k.kinder);
+      if (status !== 'weiter') return status;
+    }
+    return 'weiter';
+  }
+
   // "wenn frei": Inhalt nur ausführen, wenn das Feld vor der Katze frei ist.
   if (k.typ === 'wennFrei') {
     hebeBlockHervor(k.index);
@@ -669,6 +695,17 @@ async function fuehreKnoten(k) {
       return await fuehreProgramm(k.kinder);
     }
     return 'weiter';   // Bedingung nicht erfüllt -> Inhalt überspringen
+  }
+
+  // "wenn Wand": Inhalt nur ausführen, wenn das Feld voraus BLOCKIERT ist
+  // (Wand oder Hindernis). Gegenstück zu "wenn frei".
+  if (k.typ === 'wennWand') {
+    hebeBlockHervor(k.index);
+    await warte(230);
+    if (!istVorneFrei()) {
+      return await fuehreProgramm(k.kinder);
+    }
+    return 'weiter';
   }
 
   return 'weiter';
@@ -849,11 +886,115 @@ async function fehlversuch(grund) {
   beendeAusführung();
 }
 
+/* --------------------------------------------------------------------------
+   EFFIZIENZ-BEWERTUNG (Sterne)
+   --------------------------------------------------------------------------
+   Idee: Wir kennen die theoretisch KÜRZESTE Lösung – die minimale Anzahl
+   an Aktionen (Schritte + Drehungen), um vom Start zum Ziel zu kommen. Das
+   berechnen wir sicher per Breitensuche (BFS) über alle Zustände
+   (Zeile, Spalte, Blickrichtung). Jede Aktion kostet 1.
+
+   Der Spieler wird danach bewertet, wie viele BAUSTEINE sein Programm hat
+   (befehlsQueue.length). Wer clever Schleifen benutzt, kommt mit weniger
+   Bausteinen aus – deshalb belohnt diese Metrik effizienten Code.
+     3 Sterne: höchstens (Minimum + 2) Bausteine   -> sehr effizient
+     2 Sterne: höchstens (Minimum + 6) Bausteine
+     1 Stern : geschafft, aber deutlich mehr
+   -------------------------------------------------------------------------- */
+const STERNE_TOLERANZ_3 = 2;
+const STERNE_TOLERANZ_2 = 6;
+
+/**
+ * Berechnet per BFS die minimale Anzahl an Aktionen (Schritt/Drehung), um
+ * vom Startfeld/-blick zum Ziel 'F' zu gelangen. Das ist eine bewiesen
+ * korrekte untere Schranke ("so kurz geht es mindestens").
+ * Gibt Infinity zurück, falls das Ziel nicht erreichbar ist.
+ */
+function minimaleAktionen() {
+  // Ziel-Feld suchen.
+  let zielZ = -1, zielS = -1;
+  for (let z = 0; z < zeilenAnzahl; z++) {
+    for (let s = 0; s < spaltenAnzahl; s++) {
+      if (raster[z][s] === 'F') { zielZ = z; zielS = s; }
+    }
+  }
+  if (zielZ === -1) return Infinity;
+
+  const schluessel = (z, s, b) => z + ',' + s + ',' + b;
+  const gesehen = new Set([schluessel(startZeile, startSpalte, startBlick)]);
+  // Warteschlange der BFS: [zeile, spalte, blick, kosten]
+  const queue = [[startZeile, startSpalte, startBlick, 0]];
+
+  while (queue.length > 0) {
+    const [z, s, b, kosten] = queue.shift();
+    if (z === zielZ && s === zielS) return kosten;   // Ziel erreicht
+
+    // Mögliche Folgezustände: links drehen, rechts drehen, vorwärts.
+    const kandidaten = [];
+    kandidaten.push([z, s, (b + 3) % 4]);            // links
+    kandidaten.push([z, s, (b + 1) % 4]);            // rechts
+    const dz = [-1, 0, 1, 0][b];
+    const ds = [0, 1, 0, -1][b];
+    const nz = z + dz, ns = s + ds;
+    if (nz >= 0 && nz < zeilenAnzahl && ns >= 0 && ns < spaltenAnzahl) {
+      const feld = raster[nz][ns];
+      if (feld !== 'W' && feld !== 'H') kandidaten.push([nz, ns, b]); // vorwärts
+    }
+
+    for (const [kz, ks, kb] of kandidaten) {
+      const key = schluessel(kz, ks, kb);
+      if (!gesehen.has(key)) {
+        gesehen.add(key);
+        queue.push([kz, ks, kb, kosten + 1]);
+      }
+    }
+  }
+  return Infinity; // unerreichbar (kommt bei geprüften Leveln nicht vor)
+}
+
+/** Ermittelt die Sterne (1–3) aus Bausteinzahl und Minimum. */
+function berechneSterne(bausteine, minimum) {
+  if (!isFinite(minimum)) return 1;
+  if (bausteine <= minimum + STERNE_TOLERANZ_3) return 3;
+  if (bausteine <= minimum + STERNE_TOLERANZ_2) return 2;
+  return 1;
+}
+
+/** Zeichnet die Sterne-Reihe (voll/leer) in das Overlay. */
+function zeichneSterne(anzahl) {
+  elSterne.innerHTML = '';
+  for (let i = 1; i <= 3; i++) {
+    const stern = document.createElement('span');
+    const voll = i <= anzahl;
+    stern.className = 'sterne__stern' + (voll ? ' sterne__stern--voll' : '');
+    stern.textContent = voll ? '★' : '☆';
+    elSterne.appendChild(stern);
+  }
+}
+
 /** Die Katze hat das Ziel erreicht. */
 async function levelGeschafft() {
   setzeMeldung('Super gemacht! ' + aktuellesZiel.i, false);
   await warte(400);
 
+  // --- Bewertung berechnen ---
+  const minimum   = minimaleAktionen();
+  const bausteine = befehlsQueue.length;
+  const sterne    = berechneSterne(bausteine, minimum);
+  zeichneSterne(sterne);
+
+  // Passende Rückmeldung je nach Sternezahl.
+  let lob;
+  if (sterne === 3)      lob = 'Perfekt und effizient! 🏆';
+  else if (sterne === 2) lob = 'Gut gemacht! Geht es noch kürzer?';
+  else                   lob = 'Geschafft! Versuch es mit weniger Bausteinen.';
+
+  const minText = isFinite(minimum) ? ('Bestwert: ' + minimum) : '';
+  elBewertung.textContent =
+    'Dein Programm: ' + bausteine + ' Baustein' + (bausteine === 1 ? '' : 'e') +
+    (minText ? '  ·  ' + minText : '') + '  —  ' + lob;
+
+  // Haupttext + Buttons.
   const istLetztes = aktuellesLevel >= aktuelleLevels().length - 1;
   if (istLetztes) {
     elOverlayText.textContent =
@@ -861,12 +1002,27 @@ async function levelGeschafft() {
     elWeiterBtn.textContent = 'Von vorne ↺';
   } else {
     elOverlayText.textContent =
-      'Die Katze hat ' + aktuellesZiel.n + ' gefunden! Bereit für das nächste Level?';
+      'Die Katze hat ' + aktuellesZiel.n + ' gefunden!';
     elWeiterBtn.textContent = 'Weiter ➜';
   }
 
+  // "Nochmal" nur anbieten, wenn es noch Luft nach oben gibt (< 3 Sterne).
+  elNochmalBtn.hidden = (sterne === 3);
+
   zeigeOverlay(elOverlay);
   beendeAusführung();
+}
+
+/**
+ * "Nochmal versuchen": schließt das Overlay, setzt die Katze auf Start –
+ * ABER die Warteschlange bleibt erhalten, damit man sein Programm gezielt
+ * verbessern (kürzen) und mehr Sterne holen kann.
+ */
+function nochmalVersuchen() {
+  versteckeOverlay(elOverlay);
+  loescheSpur();
+  setzeKatzeAufStart();
+  setzeMeldung('Versuch es effizienter – nutze Schleifen! 💪', false);
 }
 
 /** Gemeinsamer Abschluss von Sieg und Fehlversuch: Sperren aufheben. */
@@ -1014,6 +1170,9 @@ function verbindeButtons() {
 
   // "Weiter" im Gewinn-Overlay -> nächstes Level.
   elWeiterBtn.addEventListener('click', naechstesLevel);
+
+  // "Nochmal versuchen" -> gleiches Level, Programm bleibt zum Verbessern.
+  elNochmalBtn.addEventListener('click', nochmalVersuchen);
 
   // --- Einstellungen ---
   elSettingsBtn.addEventListener('click', () => {

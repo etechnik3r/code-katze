@@ -41,12 +41,30 @@ verschachtelt werden:
 | 🔁 2× ( … ) | Wiederholt den Inhalt **zweimal** |
 | 🔁 3× ( … ) | Wiederholt den Inhalt **dreimal** |
 | 🎯 bis Ziel ( … ) | Wiederholt den Inhalt, **bis das Ziel erreicht** ist |
-| ❓ wenn frei ( … ) | Führt den Inhalt nur aus, **wenn das Feld vor der Katze frei** ist |
+| ➰ solange frei ( … ) | Wiederholt den Inhalt, **solange das Feld voraus frei** ist (While-Schleife) |
+| ❓ wenn frei ( … ) | Führt den Inhalt nur aus, **wenn das Feld voraus frei** ist |
+| 🧱 wenn Wand ( … ) | Führt den Inhalt nur aus, **wenn voraus eine Wand/ein Hindernis** ist |
 | ) Ende | Schließt die zuletzt geöffnete Klammer |
 
-So üben Kinder die zentralen Programmier-Konzepte **Schleife** und
-**Bedingung**. Fehlende oder überzählige Klammern werden vor dem Start
+So üben Kinder die zentralen Programmier-Konzepte **Schleife** (zählend,
+kopfgesteuert, „bis Ziel") und **Bedingung**. Blöcke lassen sich
+verschachteln; fehlende oder überzählige Klammern werden vor dem Start
 freundlich gemeldet.
+
+## Sterne-Bewertung (Effizienz)
+
+Nach jedem gelösten Level gibt es **1–3 Sterne**. Das Spiel kennt die
+theoretisch kürzeste Lösung (per Breitensuche über alle Zustände sicher
+berechnet) und vergleicht sie mit der Anzahl deiner Bausteine:
+
+- ⭐⭐⭐ sehr effizient (nahe am Minimum)
+- ⭐⭐ solide, geht aber kürzer
+- ⭐ geschafft – aber mit deutlich zu vielen Bausteinen
+
+Wer **Schleifen** statt vieler einzelner Blöcke nutzt, kommt mit weniger
+Bausteinen aus und holt mehr Sterne. Bei weniger als drei Sternen erscheint
+ein **„Nochmal"**-Button, der das Programm erhält, damit man es gezielt
+verbessern kann.
 
 Ein Tipp auf einen bereits gelegten Befehlsblock **löscht** diesen wieder.
 Die Warteschlange bricht bei vielen Befehlen **mehrzeilig** um, damit das
