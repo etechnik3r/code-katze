@@ -57,7 +57,7 @@
   -->
   <section class="status">
     <span id="levelAnzeige" class="status__level">Level 1</span>
-    <span id="meldung" class="status__meldung">Lege Befehle und drücke ▶︎</span>
+    <span id="meldung" class="status__meldung">Tippe Befehle, dann ▶︎</span>
   </section>
 
   <!--
@@ -82,13 +82,13 @@
       <span class="aktion-btn__icon">⬆️</span>
       <span class="aktion-btn__text">Schritt</span>
     </button>
-    <!-- ↺ = Linksdrehung (gegen den Uhrzeigersinn), ↻ = Rechtsdrehung -->
+    <!-- ↰ = Vierteldrehung nach links, ↱ = Vierteldrehung nach rechts -->
     <button class="aktion-btn" data-aktion="links" type="button">
-      <span class="aktion-btn__icon aktion-btn__icon--dreh">↺</span>
+      <span class="aktion-btn__icon aktion-btn__icon--dreh">↰</span>
       <span class="aktion-btn__text">Links</span>
     </button>
     <button class="aktion-btn" data-aktion="rechts" type="button">
-      <span class="aktion-btn__icon aktion-btn__icon--dreh">↻</span>
+      <span class="aktion-btn__icon aktion-btn__icon--dreh">↱</span>
       <span class="aktion-btn__text">Rechts</span>
     </button>
   </section>
@@ -169,14 +169,18 @@
     <div class="overlay__box">
       <div class="overlay__emoji">🎉</div>
       <h2 class="overlay__titel">Geschafft!</h2>
-      <!-- Sterne-Bewertung (per JS gefüllt: ★ = erreicht, ☆ = offen) -->
-      <div id="sterne" class="sterne" aria-label="Bewertung"></div>
-      <p id="overlayText" class="overlay__text">Die Katze hat den Fisch gefunden!</p>
-      <!-- Effizienz-Rückmeldung (Bausteine vs. Bestwert) -->
+      <p id="overlayText" class="overlay__text">🐟 gefunden!</p>
+
+      <!-- Zwei Bewertungs-Reihen: ⭐ = cleverer Code, 💡 = gleich beim 1. Versuch -->
+      <div id="sterne" class="sterne" aria-label="Cleverer Code"></div>
+      <div id="knobel" class="sterne" aria-label="Gleich beim ersten Versuch"></div>
+
+      <!-- Kurze Zahlen-Zeile: 🧩 Bausteine · 🎯 Bestwert · Versuche -->
       <p id="bewertungText" class="bewertung-text"></p>
+
       <div class="overlay__buttons">
         <button id="nochmalBtn" class="steuer-btn steuer-btn--reset" type="button">
-          ↻ Nochmal
+          🔁 Nochmal
         </button>
         <button id="weiterBtn" class="steuer-btn steuer-btn--play" type="button">
           Weiter ➜
@@ -233,8 +237,8 @@
           <input type="checkbox" id="profiToggle" />
           <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
         </label>
-        <p class="setting-hinweis">Schaltet zusätzliche Bausteine frei: Wiederhol-Schleifen
-          (2×, 3×), „bis Ziel" und „wenn frei". Ein Wechsel leert das aktuelle Programm.</p>
+        <p class="setting-hinweis">Schaltet Schleifen (2×, 3×, „bis Ziel", „solange frei")
+          und Bedingungen („wenn frei", „wenn Wand") frei. Ein Wechsel leert das Programm.</p>
       </div>
 
       <!-- Symbol-Erklärung (Legende) -->
@@ -246,8 +250,10 @@
           <li><span class="legende__icon">💧</span><span>Wasserpfütze – hier darf die Katze nicht hinein.</span></li>
           <li><span class="legende__icon">🐶</span><span>Hund – ein Hindernis, das den Weg versperrt.</span></li>
           <li><span class="legende__icon">⬆️</span><span>Ein Schritt nach vorne (in Blickrichtung).</span></li>
-          <li><span class="legende__icon">↺</span><span>Die Katze nach links drehen (gegen den Uhrzeigersinn).</span></li>
-          <li><span class="legende__icon">↻</span><span>Die Katze nach rechts drehen (im Uhrzeigersinn).</span></li>
+          <li><span class="legende__icon">↰</span><span>Die Katze eine Vierteldrehung nach links drehen.</span></li>
+          <li><span class="legende__icon">↱</span><span>Die Katze eine Vierteldrehung nach rechts drehen.</span></li>
+          <li><span class="legende__icon">💥</span><span>Hier ist die Katze angestoßen (Wand oder Hindernis).</span></li>
+          <li><span class="legende__icon">⭐💡</span><span>Sterne = cleverer Code, Glühbirnen = gleich beim 1. Versuch geschafft.</span></li>
         </ul>
         <div class="setting-titel setting-titel--klein">Profi-Bausteine</div>
         <ul class="legende">

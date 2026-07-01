@@ -128,10 +128,11 @@ body {
 
 .status__level {
   font-weight: 800;
+  font-size: clamp(1rem, 4vw, 1.2rem);
   color: var(--farbe-akzent-d);
   white-space: nowrap;
   /* kleiner Farbpunkt links zeigt die Schwierigkeit an (per JS gesetzt) */
-  padding-left: 16px;
+  padding-left: 18px;
   position: relative;
 }
 .status__level::before {
@@ -147,8 +148,10 @@ body {
 }
 
 .status__meldung {
-  font-size: 0.9rem;
+  font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+  font-weight: 600;
   text-align: right;
+  line-height: 1.2;
 }
 
 /* Kleine "Wackel"-Animation für Fehlermeldungen (siehe game.js) */
@@ -237,11 +240,32 @@ body {
   fill: var(--farbe-akzent-d);
 }
 .spur__dreh {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   fill: var(--farbe-akzent-d);
   text-anchor: middle;
   dominant-baseline: central;
+}
+
+/* --------------------------------------------------------------------------
+   CRASH-/STOPP-MARKER (💥 / ❓) direkt auf einem Feld – zeigt dem Kind sofort,
+   WO es nicht weiterging. Liegt über der Katze und poppt kurz auf.
+   -------------------------------------------------------------------------- */
+.marker {
+  position: absolute;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(24px, 9vw, 46px);
+  pointer-events: none;
+  will-change: transform;
+  animation: markerPop 0.35s ease both;
+}
+@keyframes markerPop {
+  0%   { transform: scale(0); opacity: 0; }
+  70%  { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* --------------------------------------------------------------------------
@@ -381,12 +405,12 @@ body {
   cursor: pointer;
 }
 
-.aktion-btn__icon { font-size: 1.35rem; line-height: 1; }
-.aktion-btn__text { font-size: 0.74rem; }
+.aktion-btn__icon { font-size: clamp(1.5rem, 6.5vw, 2rem); line-height: 1; }
+.aktion-btn__text { font-size: clamp(0.85rem, 3.6vw, 1.05rem); }
 
-/* Dreh-Symbole (↺ ↻) sind Text-Glyphen – etwas kräftiger darstellen */
+/* Dreh-Symbole (↰ ↱) sind Text-Glyphen – kräftig und groß darstellen */
 .aktion-btn__icon--dreh {
-  font-size: 1.7rem;
+  font-size: clamp(1.9rem, 8vw, 2.5rem);
   font-weight: 800;
   color: var(--farbe-akzent-d);
 }
@@ -409,8 +433,8 @@ body {
   flex-direction: row;          /* Icon neben Text = flacher */
   gap: 5px;
 }
-.aktionen--profi .aktion-btn__icon { font-size: 1.1rem; }
-.aktionen--profi .aktion-btn__text { font-size: 0.72rem; }
+.aktionen--profi .aktion-btn__icon { font-size: 1.35rem; }
+.aktionen--profi .aktion-btn__text { font-size: clamp(0.8rem, 3.3vw, 0.95rem); }
 /* Logikblöcke (Schleifen/Bedingungen) in einer eigenen Farbe (Violett) */
 .aktion-btn--logik {
   border-color: #c9b8f0;
@@ -434,8 +458,8 @@ body {
 }
 
 .queue-bereich__label {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+  font-weight: 800;
   color: var(--farbe-akzent-d);
   margin-bottom: 4px;
   padding-left: 4px;
@@ -466,12 +490,12 @@ body {
 /* Einzelner Befehlsblock in der Warteschlange */
 .queue-block {
   flex: 0 0 auto;
-  width: 46px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.55rem;
   background: var(--farbe-zelle);
   border: 2px solid var(--farbe-grid);
   border-radius: 10px;
@@ -543,10 +567,10 @@ body {
 
 .steuer-btn {
   flex: 1;
-  min-height: 54px;
+  min-height: 56px;
   border: none;
   border-radius: var(--radius);
-  font-size: 1.1rem;
+  font-size: clamp(1.2rem, 4.8vw, 1.45rem);
   font-weight: 800;
   color: #fff;
   cursor: pointer;
@@ -632,33 +656,38 @@ body {
 
 .overlay__titel {
   margin: 6px 0;
-  font-size: 1.6rem;
+  font-size: clamp(1.6rem, 6.5vw, 2rem);
 }
 
 .overlay__text {
-  margin-bottom: 8px;
-  font-size: 0.95rem;
+  margin-bottom: 6px;
+  font-size: clamp(1.05rem, 4.4vw, 1.3rem);
+  font-weight: 600;
 }
 
-/* Sterne-Bewertung */
+/* Sterne-/Bewertungs-Symbole (zwei Reihen: ⭐ Code, 💡 erster Versuch) */
 .sterne {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   line-height: 1;
-  margin: 4px 0 8px;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
+  margin: 2px 0;
 }
 .sterne__stern {
   display: inline-block;
-  color: #d9d4e0;              /* leerer Stern: grau */
+  color: #d9d4e0;              /* leeres Symbol: grau */
+  filter: grayscale(1);        /* leere Emoji (z. B. 💡) ausgrauen */
+  opacity: 0.4;
 }
 .sterne__stern--voll {
   color: #ffc93c;             /* voller Stern: gold */
+  filter: none;
+  opacity: 1;
   animation: sternPop 0.4s ease both;
 }
-/* Sterne nacheinander "aufpoppen" lassen */
-.sterne__stern--voll:nth-child(1) { animation-delay: 0.15s; }
-.sterne__stern--voll:nth-child(2) { animation-delay: 0.40s; }
-.sterne__stern--voll:nth-child(3) { animation-delay: 0.65s; }
+/* Symbole nacheinander "aufpoppen" lassen */
+.sterne__stern--voll:nth-child(1) { animation-delay: 0.10s; }
+.sterne__stern--voll:nth-child(2) { animation-delay: 0.30s; }
+.sterne__stern--voll:nth-child(3) { animation-delay: 0.50s; }
 @keyframes sternPop {
   0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
   70%  { transform: scale(1.3) rotate(8deg); }
@@ -666,9 +695,10 @@ body {
 }
 
 .bewertung-text {
-  font-size: 0.85rem;
-  color: #6a667a;
-  margin-bottom: 16px;
+  font-size: clamp(0.95rem, 4vw, 1.15rem);
+  font-weight: 700;
+  color: #4a475a;
+  margin: 8px 0 16px;
 }
 
 /* Button-Reihe (Nochmal / Weiter) */

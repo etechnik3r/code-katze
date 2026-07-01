@@ -46,125 +46,494 @@ const STANDARD_ZIEL = { i: '🐟', n: 'den Fisch' };
 const SCHWIERIGKEITEN = {
 
   leicht: {
-    label: 'Leicht',
-    farbe: '#3ec96a',
+    label: "Leicht",
+    farbe: "#3ec96a",
     levels: [
-      { name: 'Geradeaus', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+      { name: 'L1', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         '.....',
         '.....',
-        'K...F',
+        '...F.',
+        '...K.',
+        '.....',
+      ]},
+      { name: 'L2', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '.....',
+        '..K.F',
+        '.....',
         '.....',
         '.....',
       ]},
-      { name: 'Nach oben', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+      { name: 'L3', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '.....',
+        '..F..',
+        '.....',
+        '.....',
+        '....K',
+      ]},
+      { name: 'L4', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        '.....',
+        '.....',
+        '.....',
+        '....K',
+        '...F.',
+      ]},
+      { name: 'L5', blick: 3, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '.K...',
+        '.....',
         'F....',
         '.....',
-        '.....',
-        '.....',
-        'K....',
+        '.H...',
       ]},
-      { name: 'Um die Ecke', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { name: 'L6', blick: 0, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        'W....',
+        '.....',
+        '.K...',
+        'F....',
+        '.....',
+      ]},
+      { name: 'L7', blick: 1, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        '.....',
+        '.F...',
+        '.....',
+        '.HK..',
+        '.....',
+      ]},
+      { name: 'L8', blick: 1, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        '...K.',
+        '..F..',
+        '....W',
         '.....',
         '.....',
-        'K....',
+      ]},
+      { name: 'L9', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        '....K',
+        '.FW.W',
         '.....',
+        '.....',
+        '.....',
+      ]},
+      { name: 'L10', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '....W',
         '....F',
+        'W....',
+        '.....',
+        '..K..',
       ]},
-      { name: 'Große Kurve', blick: 1, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
-        '....F',
+      { name: 'L11', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '..F..',
+        'W....',
         '.....',
+        'WK...',
         '.....',
+      ]},
+      { name: 'L12', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '.....',
+        '...H.',
         'K....',
+        '.....',
+        '.FW..',
       ]},
-      { name: 'Erste Pfütze', blick: 1, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
-        '.....',
-        '.....',
-        'K.W.F',
-        '.....',
-        '.....',
+      { name: 'L13', blick: 3, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '......',
+        '.....F',
+        '..K..H',
+        'W.....',
+        '.W....',
+        '......',
+      ]},
+      { name: 'L14', blick: 2, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        '...W.K',
+        '.....H',
+        '......',
+        '..W...',
+        '.....F',
+        '......',
+      ]},
+      { name: 'L15', blick: 1, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        'W..FH.',
+        '......',
+        '......',
+        '......',
+        '.....W',
+        '....K.',
+      ]},
+      { name: 'L16', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        '......',
+        'K.....',
+        '......',
+        'W.W...',
+        '......',
+        '..W.F.',
+      ]},
+      { name: 'L17', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'W.....',
+        '..WF..',
+        '......',
+        '.....W',
+        '.....W',
+        '.K....',
+      ]},
+      { name: 'L18', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        'H..K.W',
+        'W.....',
+        '......',
+        '....H.',
+        '......',
+        '.....F',
+      ]},
+      { name: 'L19', blick: 3, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '..WWHF',
+        '.W....',
+        '......',
+        '......',
+        '......',
+        'K.....',
+      ]},
+      { name: 'L20', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        '...H..',
+        '....W.',
+        '.K.W..',
+        '.....F',
+        '.....W',
+        '......',
       ]},
     ],
   },
 
   mittel: {
-    label: 'Mittel',
-    farbe: '#ff8a5c',
+    label: "Mittel",
+    farbe: "#ff8a5c",
     levels: [
-      { name: 'Um die Ecke', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { name: 'L1', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        '.F...',
+        '....W',
+        '....K',
         '.....',
-        '...F.',
+        '..W.W',
+      ]},
+      { name: 'L2', blick: 3, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        'W....',
+        '...H.',
+        'KW...',
+        '....F',
+        '.....',
+      ]},
+      { name: 'L3', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '..WK.',
+        'F....',
+        '..H..',
+        '.....',
+        '.WH..',
+      ]},
+      { name: 'L4', blick: 2, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         'K....',
-        '.....',
-        '.....',
-      ]},
-      { name: 'Pfütze im Weg', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
-        '.....',
         '..W..',
-        'K.WF.',
-        '..W..',
-        '.....',
+        'H.F..',
+        '...H.',
+        'H....',
       ]},
-      { name: 'Der wachsame Hund', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
-        '..F..',
-        '..W..',
-        'K.H..',
+      { name: 'L5', blick: 1, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '.W.F.',
+        '.W.H.',
         '.....',
-        '.....',
+        '...H.',
+        '.K.H.',
       ]},
-      { name: 'Zickzack', blick: 1, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+      { name: 'L6', blick: 2, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        '....F',
+        '.WH..',
+        'W....',
+        'W.W..',
+        'K....',
+      ]},
+      { name: 'L7', blick: 3, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        '...FH',
+        '....W',
+        'WH...',
         'K...W',
-        'WWW.W',
-        '..W..',
-        '.WW.W',
-        '...F.',
+        '....H',
       ]},
-      { name: 'Kleines Labyrinth', blick: 1, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
-        'K.W..',
-        '..WW.',
+      { name: 'L8', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        'WWW..',
+        '..W..',
+        '.H...',
+        'F.H.K',
         '.....',
-        'WWW.W',
-        '..F..',
+      ]},
+      { name: 'L9', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'F.....',
+        '.....W',
+        'W.....',
+        '.W.W..',
+        '..W...',
+        'W..WK.',
+      ]},
+      { name: 'L10', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '......',
+        '..W...',
+        '..W...',
+        '...W.F',
+        '...HWH',
+        '.K.W..',
+      ]},
+      { name: 'L11', blick: 3, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '.F..W.',
+        '..H.W.',
+        '.H....',
+        '....W.',
+        'W..W..',
+        '..W..K',
+      ]},
+      { name: 'L12', blick: 2, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        'K.....',
+        'W.WWH.',
+        '.H....',
+        '..HH..',
+        '...H.F',
+        '......',
+      ]},
+      { name: 'L13', blick: 0, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        'WW.F..',
+        'KW..W.',
+        '..W...',
+        '..H..W',
+        '.....W',
+        '....W.',
+      ]},
+      { name: 'L14', blick: 3, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        '.....W',
+        'K.H..W',
+        '.WHW..',
+        '..W.WF',
+        '......',
+        '.....W',
+      ]},
+      { name: 'L15', blick: 0, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        '.....W',
+        'W..K.W',
+        'WH....',
+        '.WH.W.',
+        '.WFH..',
+        '......',
+      ]},
+      { name: 'L16', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        '....KW',
+        '...WH.',
+        '.HW...',
+        '.HWW..',
+        '..W...',
+        '..F.W.',
+      ]},
+      { name: 'L17', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'H..WKH',
+        '.H....',
+        'WH..W.',
+        'W.HW..',
+        'F....W',
+        '......',
+      ]},
+      { name: 'L18', blick: 2, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '.H.WW.',
+        '.....K',
+        '.W..H.',
+        '..WHHW',
+        '....F.',
+        '....WH',
+      ]},
+      { name: 'L19', blick: 2, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '.K....',
+        '.W....',
+        'WH.WW.',
+        'HWW...',
+        '.W.W.W',
+        '.W.F..',
+      ]},
+      { name: 'L20', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        '.HW..W',
+        '...WHK',
+        'W.WW..',
+        'H..W..',
+        'F.W..W',
+        '......',
       ]},
     ],
   },
 
   schwer: {
-    label: 'Schwer',
-    farbe: '#e23b3b',
+    label: "Schwer",
+    farbe: "#e23b3b",
     levels: [
-      { name: 'Verschlungen', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
-        'K..WWW',
-        'WW.W.W',
-        'W....W',
-        'WWWW.W',
-        'WWWW..',
-        'WWWWWF',
+      { name: 'L1', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'H.....',
+        '..K.WW',
+        '..H...',
+        '...H..',
+        '.H....',
+        '.F.W..',
       ]},
-      { name: 'Der Irrgarten', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
-        'K....W',
-        'WWWW.W',
-        'W....W',
-        'W.WWWW',
-        'W....W',
-        'WWWW.F',
+      { name: 'L2', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '.H....',
+        '.WFW..',
+        '..HKW.',
+        '....H.',
+        '......',
+        '....H.',
       ]},
-      { name: 'Großes Abenteuer', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
-        'K..W..',
-        'HW.W.W',
-        '...W..',
-        '.WWW.W',
+      { name: 'L3', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '.....K',
+        'WW....',
+        '..W.H.',
+        'W.H..H',
+        'F...H.',
+        '......',
+      ]},
+      { name: 'L4', blick: 1, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        '..W...',
+        'FH...H',
+        '...W.W',
+        'W.....',
+        '....W.',
+        '.W.HK.',
+      ]},
+      { name: 'L5', blick: 0, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '.KH...',
+        '..H.F.',
+        '.W..W.',
+        '.H..HW',
+        '.H.H.W',
+        '......',
+      ]},
+      { name: 'L6', blick: 0, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        'K.W.HH',
         '.....W',
-        'WWWW.F',
+        '.H....',
+        'H...W.',
+        '..WWWW',
+        '....F.',
       ]},
-      { name: 'Meisterprüfung', blick: 1, ziel: { i: '🐟', n: 'den großen Fisch' }, karte: [
-        'K......',
-        'WWWWWW.',
+      { name: 'L7', blick: 0, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        'FHWWWK',
+        '..HH..',
+        '...W..',
+        '...W.H',
+        '...H.H',
+        '.W....',
+      ]},
+      { name: 'L8', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        'K...H.',
+        '.W.HFH',
+        '.WHW..',
+        '..W...',
+        'W...W.',
+        'WH..H.',
+      ]},
+      { name: 'L9', blick: 2, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'W.....W',
+        '.W....K',
+        '....WWW',
+        '...H.FW',
+        '..HW...',
+        '...W..W',
+        '.H...W.',
+      ]},
+      { name: 'L10', blick: 3, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        'F....H.',
+        '....HH.',
+        '..HW...',
+        '...WKW.',
+        'WH..WH.',
+        '.H.....',
+        'H.WH...',
+      ]},
+      { name: 'L11', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        'HWH....',
+        '......W',
+        '.H.HW..',
+        'FW.H...',
+        'WW.WW..',
+        '..WKW..',
+        '.H.....',
+      ]},
+      { name: 'L12', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        '..H..H.',
+        'WW..WH.',
+        '.H....F',
+        '...HHHW',
+        '..WH..W',
+        'H..W.K.',
         '.......',
-        '.WWWWWW',
-        '.......',
-        'WWWWWW.',
-        '......F',
+      ]},
+      { name: 'L13', blick: 1, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '..W.WH.',
+        'W..H...',
+        '.W...W.',
+        '...W.W.',
+        '.WW.W..',
+        '.FH...H',
+        '...WKWW',
+      ]},
+      { name: 'L14', blick: 3, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        '...HHF.',
+        'WH.H...',
+        'W..HW.H',
+        'K.WH...',
+        '..H.HH.',
+        '.H.....',
+        '...W.HW',
+      ]},
+      { name: 'L15', blick: 3, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        '...HWFH',
+        '.H..H.H',
+        '..KW...',
+        '.H..HH.',
+        '..H..H.',
+        '.WW.W..',
+        'WWW...H',
+      ]},
+      { name: 'L16', blick: 1, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        '..H..W.',
+        'W...W.H',
+        '..H...H',
+        'KWWW..H',
+        'WF..W.W',
+        '.H.....',
+        '.WW.HWW',
+      ]},
+      { name: 'L17', blick: 3, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'HHW....',
+        '.H..W..',
+        '.H.WH..',
+        'H...WW.',
+        'H..WW..',
+        '..WK..H',
+        'HFH.WHH',
+      ]},
+      { name: 'L18', blick: 2, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        'WW.H.FH',
+        '..W..WW',
+        'W...WKW',
+        'W..W...',
+        'W.H..W.',
+        '....H..',
+        'WW.HWWW',
+      ]},
+      { name: 'L19', blick: 2, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        'WHW.W.H',
+        '.HFHHHW',
+        'W..W...',
+        'H.H..W.',
+        'W.W..H.',
+        'W.W.W.K',
+        'W...W..',
+      ]},
+      { name: 'L20', blick: 3, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        'F.WHK.W',
+        'W..HH..',
+        'HW.WWW.',
+        '.W..W..',
+        'WHH...W',
+        'W.WH..W',
+        '..WW.H.',
       ]},
     ],
   },
@@ -219,6 +588,10 @@ let fehlerGrund = '';
 // Die Befehlsblöcke der Queue als DOM-Liste (für die Hervorhebung im Lauf):
 let queueBloecke = [];
 
+// Zähler, wie oft in diesem Level "Start" gedrückt wurde (für den 💡-Bonus:
+// gleich beim 1. Versuch schaffen = mehr Köpfchen-Punkte).
+let versuche = 0;
+
 
 /* ==========================================================================
    C) DOM-REFERENZEN  (einmal holen, dann wiederverwenden)
@@ -236,6 +609,7 @@ const elOverlay      = document.getElementById('gewinnOverlay');
 const elOverlayText  = document.getElementById('overlayText');
 const elWeiterBtn    = document.getElementById('weiterBtn');
 const elSterne       = document.getElementById('sterne');
+const elKnobel       = document.getElementById('knobel');
 const elBewertung    = document.getElementById('bewertungText');
 const elNochmalBtn   = document.getElementById('nochmalBtn');
 
@@ -295,10 +669,12 @@ function ladeLevel(index) {
 
   // 3) Status-Anzeige aktualisieren (Levelname + Schwierigkeitsfarbe).
   elLevel.textContent = 'Level ' + (index + 1);
-  setzeMeldung('Lege Befehle und drücke ▶︎', false);
+  setzeMeldung('Tippe Befehle, dann ▶︎', false);
+  versuche = 0;   // neuer Level -> Versuchszähler zurücksetzen (für 💡-Bonus)
 
-  // 4) Spur zurücksetzen und Grid zeichnen.
+  // 4) Spur und Crash-Markierungen zurücksetzen, Grid zeichnen.
   loescheSpur();
+  loescheMarker();
   zeichneRaster();
 
   // 5) Die Katze auf die Startposition setzen.
@@ -420,8 +796,8 @@ function zeichneKatze() {
 */
 const BLOCK_INFO = {
   vor:         { text: '⬆️',     klasse: '' },
-  links:       { text: '↺',      klasse: '' },
-  rechts:      { text: '↻',      klasse: '' },
+  links:       { text: '↰',      klasse: '' },
+  rechts:      { text: '↱',      klasse: '' },
   loop2:       { text: '🔁2 (',  klasse: 'queue-block--logik' },
   loop3:       { text: '🔁3 (',  klasse: 'queue-block--logik' },
   loopZiel:    { text: '🎯 (',   klasse: 'queue-block--logik' },
@@ -510,7 +886,7 @@ const MAX_ZIEL_WIEDERHOLUNGEN = 60;
 async function starteAusführung() {
   if (laeuft) return;
   if (befehlsQueue.length === 0) {
-    setzeMeldung('Lege zuerst ein paar Befehle! 🧩', true);
+    setzeMeldung('Erst Befehle tippen! 🧩', true);
     return;
   }
 
@@ -523,9 +899,11 @@ async function starteAusführung() {
 
   // --- Vorbereitung ---
   laeuft = true;
+  versuche++;                               // dieser Start zählt als Versuch
   setzeEingabenAktiv(false);
   elQueue.classList.add('queue--laeuft');   // blendet die Lösch-Kreuze aus
   setzeKatzeAufStart();
+  loescheMarker();                          // alte Crash-Markierungen weg
 
   // Spur frisch beginnen: Startfeld als ersten Punkt aufnehmen.
   spurPfad   = [{ z: katzeZeile, s: katzeSpalte }];
@@ -549,7 +927,10 @@ async function starteAusführung() {
   } else if (status === 'fehler') {
     await fehlversuch(fehlerGrund);
   } else {
-    await fehlversuch('Die Befehle sind zu Ende – aber das Ziel ist nicht erreicht!');
+    // Alles abgearbeitet, aber Ziel nicht erreicht: Katze bleibt "ratlos"
+    // stehen -> Fragezeichen als Visualisierung direkt auf dem Feld.
+    zeigeMarker(katzeZeile, katzeSpalte, '❓');
+    await fehlversuch('Ziel noch nicht erreicht 🎯');
   }
 }
 
@@ -631,7 +1012,13 @@ async function fuehreKnoten(k) {
     zeichneSpur();
     await warte(SCHRITT_DELAY);
 
-    if (!ergebnis.gueltig) { fehlerGrund = ergebnis.grund; return 'fehler'; }
+    if (!ergebnis.gueltig) {
+      // Zusammenstoß direkt auf dem Feld sichtbar machen (💥 auf dem Feld,
+      // gegen das die Katze gelaufen ist – bzw. am Rand auf ihrem Feld).
+      zeigeMarker(ergebnis.z, ergebnis.s, '💥');
+      fehlerGrund = ergebnis.grund;
+      return 'fehler';
+    }
     if (raster[katzeZeile][katzeSpalte] === 'F') return 'gewonnen';
     return 'weiter';
   }
@@ -761,18 +1148,19 @@ function fuehreBefehlAus(befehl) {
     const neueZeile  = katzeZeile  + dz;
     const neueSpalte = katzeSpalte + ds;
 
-    // 1) Außerhalb des Spielfelds? -> Wand.
+    // 1) Außerhalb des Spielfelds? -> Wand. Das 💥 sitzt dann auf dem
+    //    aktuellen Feld der Katze (das Nachbarfeld gibt es ja nicht).
     if (
       neueZeile < 0 || neueZeile >= zeilenAnzahl ||
       neueSpalte < 0 || neueSpalte >= spaltenAnzahl
     ) {
-      return { gueltig: false, grund: 'Die Katze ist gegen die Wand gelaufen! 🧱' };
+      return { gueltig: false, grund: 'Aua, eine Wand! 🧱', z: katzeZeile, s: katzeSpalte };
     }
 
-    // 2) Hindernis?
+    // 2) Hindernis? -> 💥 kommt auf das blockierte Nachbarfeld.
     const feld = raster[neueZeile][neueSpalte];
-    if (feld === 'W') return { gueltig: false, grund: 'Platsch! In die Wasserpfütze. 💧' };
-    if (feld === 'H') return { gueltig: false, grund: 'Wuff! Der Hund versperrt den Weg. 🐶' };
+    if (feld === 'W') return { gueltig: false, grund: 'Platsch, Wasser! 💧', z: neueZeile, s: neueSpalte };
+    if (feld === 'H') return { gueltig: false, grund: 'Wuff, ein Hund! 🐶', z: neueZeile, s: neueSpalte };
 
     // 3) Frei -> Schritt ausführen und Spur verlängern.
     katzeZeile  = neueZeile;
@@ -846,10 +1234,38 @@ function zeichneSpur() {
     text.setAttribute('x', mitte(m.s));
     text.setAttribute('y', mitte(m.z));
     text.setAttribute('class', 'spur__dreh');
-    // ↺ = Linksdrehung (gegen Uhrzeiger), ↻ = Rechtsdrehung.
-    text.textContent = (m.typ === 'links') ? '↺' : '↻';
+    // ↰ = Linksdrehung, ↱ = Rechtsdrehung (gleiche Symbole wie die Buttons).
+    text.textContent = (m.typ === 'links') ? '↰' : '↱';
     elSpur.appendChild(text);
   });
+}
+
+/* --------------------------------------------------------------------------
+   CRASH-/STOPP-MARKIERUNGEN auf dem Spielbrett
+   --------------------------------------------------------------------------
+   Kleine Emoji-Markierung (z. B. 💥 beim Zusammenstoß, ❓ wenn das Ziel nicht
+   erreicht wurde) direkt auf einem Feld. So sieht das Kind SOFORT, WO und
+   WARUM es nicht weiterging – nicht nur als Text oben. Markierungen liegen
+   über der Katze und werden beim nächsten Start/Level wieder entfernt.
+   -------------------------------------------------------------------------- */
+function zeigeMarker(zeile, spalte, emoji) {
+  if (!elSpielfeld) return;
+  const { padding, gap, groesse } = zellenGeometrie();
+  const el = document.createElement('div');
+  el.className = 'marker';
+  el.textContent = emoji;
+  el.style.width  = groesse + 'px';
+  el.style.height = groesse + 'px';
+  // Positionierung über left/top, damit 'transform' frei für die Pop-Animation bleibt.
+  el.style.left = (padding + spalte * (groesse + gap)) + 'px';
+  el.style.top  = (padding + zeile  * (groesse + gap)) + 'px';
+  elSpielfeld.appendChild(el);
+}
+
+/** Entfernt alle Crash-/Stopp-Markierungen vom Spielbrett. */
+function loescheMarker() {
+  if (!elSpielfeld) return;
+  elSpielfeld.querySelectorAll('.marker').forEach((m) => m.remove());
 }
 
 
@@ -877,9 +1293,9 @@ function setzeEingabenAktiv(aktiv) {
  */
 async function fehlversuch(grund) {
   if (elKatze) elKatze.classList.add('katze--bonk');
-  setzeMeldung(grund + ' Versuch es nochmal! 🔁', true);
+  setzeMeldung(grund + ' 🔁', true);   // kurz halten – das 💥/❓ auf dem Feld zeigt das WO
 
-  await warte(900); // Fehler-Moment kurz wahrnehmen lassen
+  await warte(1100); // Fehler-Moment (inkl. Markierung) kurz wahrnehmen lassen
 
   if (elKatze) elKatze.classList.remove('katze--bonk');
   setzeKatzeAufStart();   // Katze zurück auf Start – Queue & Spur bleiben!
@@ -952,7 +1368,7 @@ function minimaleAktionen() {
   return Infinity; // unerreichbar (kommt bei geprüften Leveln nicht vor)
 }
 
-/** Ermittelt die Sterne (1–3) aus Bausteinzahl und Minimum. */
+/** Ermittelt die Sterne (1–3) aus Bausteinzahl und Minimum (Effizienz). */
 function berechneSterne(bausteine, minimum) {
   if (!isFinite(minimum)) return 1;
   if (bausteine <= minimum + STERNE_TOLERANZ_3) return 3;
@@ -960,54 +1376,63 @@ function berechneSterne(bausteine, minimum) {
   return 1;
 }
 
-/** Zeichnet die Sterne-Reihe (voll/leer) in das Overlay. */
-function zeichneSterne(anzahl) {
-  elSterne.innerHTML = '';
+/**
+ * Ermittelt die 💡-Punkte (1–3) aus der Zahl der Versuche.
+ * Belohnt "gleich beim ersten Mal richtig gedacht" statt Ausprobieren.
+ */
+function berechneKnobel(anzahlVersuche) {
+  if (anzahlVersuche <= 1) return 3;   // erster Versuch = Volltreffer
+  if (anzahlVersuche <= 3) return 2;
+  return 1;
+}
+
+/** Zeichnet eine Bewertungs-Reihe (3 Symbole, voll/leer) in ein Element. */
+function zeichneReihe(el, anzahl, vollSymbol, leerSymbol) {
+  el.innerHTML = '';
   for (let i = 1; i <= 3; i++) {
-    const stern = document.createElement('span');
+    const span = document.createElement('span');
     const voll = i <= anzahl;
-    stern.className = 'sterne__stern' + (voll ? ' sterne__stern--voll' : '');
-    stern.textContent = voll ? '★' : '☆';
-    elSterne.appendChild(stern);
+    span.className = 'sterne__stern' + (voll ? ' sterne__stern--voll' : '');
+    span.textContent = voll ? vollSymbol : leerSymbol;
+    el.appendChild(span);
   }
 }
 
 /** Die Katze hat das Ziel erreicht. */
 async function levelGeschafft() {
-  setzeMeldung('Super gemacht! ' + aktuellesZiel.i, false);
+  setzeMeldung('Super! ' + aktuellesZiel.i, false);
   await warte(400);
 
   // --- Bewertung berechnen ---
   const minimum   = minimaleAktionen();
   const bausteine = befehlsQueue.length;
-  const sterne    = berechneSterne(bausteine, minimum);
-  zeichneSterne(sterne);
+  const sterne    = berechneSterne(bausteine, minimum);   // Effizienz (Code)
+  const knobel    = berechneKnobel(versuche);             // gleich richtig?
 
-  // Passende Rückmeldung je nach Sternezahl.
-  let lob;
-  if (sterne === 3)      lob = 'Perfekt und effizient! 🏆';
-  else if (sterne === 2) lob = 'Gut gemacht! Geht es noch kürzer?';
-  else                   lob = 'Geschafft! Versuch es mit weniger Bausteinen.';
+  // Zwei Icon-Reihen: ⭐ = cleverer Code, 💡 = beim 1. Mal geschafft.
+  zeichneReihe(elSterne, sterne, '★', '☆');
+  zeichneReihe(elKnobel, knobel, '💡', '💡');
 
-  const minText = isFinite(minimum) ? ('Bestwert: ' + minimum) : '';
-  elBewertung.textContent =
-    'Dein Programm: ' + bausteine + ' Baustein' + (bausteine === 1 ? '' : 'e') +
-    (minText ? '  ·  ' + minText : '') + '  —  ' + lob;
+  // Sehr kurze Rückmeldung (wenig Text, dafür klare Zahlen mit Icons).
+  const versuchText = (versuche === 1) ? '1. Versuch 🎉' : (versuche + ' Versuche');
+  elBewertung.textContent = '🧩 ' + bausteine + '  ·  🎯 ' + minimum + '  ·  ' + versuchText;
 
-  // Haupttext + Buttons.
+  // Haupttext (kurz, mit Ziel-Emoji) + Buttons.
+  const istLetzteStufe = (aktuelleSchwierigkeit === 'schwer');
   const istLetztes = aktuellesLevel >= aktuelleLevels().length - 1;
-  if (istLetztes) {
-    elOverlayText.textContent =
-      'Du hast ALLE Level dieser Stufe gelöst. Probiere im ⚙️ die nächste Schwierigkeit! 🌟';
-    elWeiterBtn.textContent = 'Von vorne ↺';
+  if (istLetztes && istLetzteStufe) {
+    elOverlayText.textContent = 'Wow! Alles geschafft! 🏆';
+    elWeiterBtn.textContent = 'Nochmal 🔁';
+  } else if (istLetztes) {
+    elOverlayText.textContent = 'Stufe geschafft! Weiter geht’s 💪';
+    elWeiterBtn.textContent = 'Weiter ➜';
   } else {
-    elOverlayText.textContent =
-      'Die Katze hat ' + aktuellesZiel.n + ' gefunden!';
+    elOverlayText.textContent = aktuellesZiel.i + ' gefunden!';
     elWeiterBtn.textContent = 'Weiter ➜';
   }
 
-  // "Nochmal" nur anbieten, wenn es noch Luft nach oben gibt (< 3 Sterne).
-  elNochmalBtn.hidden = (sterne === 3);
+  // "Nochmal" nur anbieten, wenn es noch Luft nach oben gibt.
+  elNochmalBtn.hidden = (sterne === 3 && knobel === 3);
 
   zeigeOverlay(elOverlay);
   beendeAusführung();
@@ -1021,8 +1446,9 @@ async function levelGeschafft() {
 function nochmalVersuchen() {
   versteckeOverlay(elOverlay);
   loescheSpur();
+  loescheMarker();
   setzeKatzeAufStart();
-  setzeMeldung('Versuch es effizienter – nutze Schleifen! 💪', false);
+  setzeMeldung('Nochmal – mit weniger Bausteinen! 💪', false);
 }
 
 /** Gemeinsamer Abschluss von Sieg und Fehlversuch: Sperren aufheben. */
@@ -1034,10 +1460,30 @@ function beendeAusführung() {
     .forEach((b) => b.classList.remove('queue-block--aktiv'));
 }
 
-/** Lädt das nächste Level (oder beginnt nach dem letzten wieder von vorn). */
+/**
+ * Lädt das nächste Level. Am Ende einer Stufe geht es AUTOMATISCH eine Stufe
+ * höher (leicht -> mittel -> schwer). Nach "schwer" bleibt es bei "schwer" –
+ * es wird NIE selbstständig auf eine leichtere Stufe zurückgeschaltet.
+ */
 function naechstesLevel() {
   versteckeOverlay(elOverlay);
-  aktuellesLevel = (aktuellesLevel + 1) % aktuelleLevels().length;
+
+  const anzahl = aktuelleLevels().length;
+  if (aktuellesLevel < anzahl - 1) {
+    aktuellesLevel++;                       // einfach nächstes Level
+  } else if (aktuelleSchwierigkeit === 'leicht') {
+    aktuelleSchwierigkeit = 'mittel';       // Stufe rauf
+    aktuellesLevel = 0;
+    aktualisiereEinstellungsUI();
+    speichereEinstellungen();
+  } else if (aktuelleSchwierigkeit === 'mittel') {
+    aktuelleSchwierigkeit = 'schwer';       // Stufe rauf
+    aktuellesLevel = 0;
+    aktualisiereEinstellungsUI();
+    speichereEinstellungen();
+  } else {
+    aktuellesLevel = 0;                     // schwer bleibt schwer (von vorn)
+  }
 
   befehlsQueue = [];   // neues Level = leere Warteschlange
   zeichneQueue();
@@ -1114,12 +1560,10 @@ function setzeProfiModus(an) {
   befehlsQueue = [];
   zeichneQueue();
   loescheSpur();
+  loescheMarker();
   setzeKatzeAufStart();
   speichereEinstellungen();
-  const text = an
-    ? 'Profi-Modus an: Schleifen & Logik freigeschaltet! 🧠'
-    : 'Profi-Modus aus. Zurück zu den Grundbausteinen. ✨';
-  setzeMeldung(text, false);
+  setzeMeldung(an ? 'Profi-Modus an 🧠' : 'Profi-Modus aus ✨', false);
 }
 
 /** Wechselt die Schwierigkeit und startet bei Level 1 der neuen Stufe. */
@@ -1164,8 +1608,9 @@ function verbindeButtons() {
     befehlsQueue = [];
     zeichneQueue();
     loescheSpur();
+    loescheMarker();
     setzeKatzeAufStart();
-    setzeMeldung('Alles gelöscht. Leg neu los! ✨', false);
+    setzeMeldung('Gelöscht ✨', false);
   });
 
   // "Weiter" im Gewinn-Overlay -> nächstes Level.

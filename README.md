@@ -51,20 +51,35 @@ kopfgesteuert, „bis Ziel") und **Bedingung**. Blöcke lassen sich
 verschachteln; fehlende oder überzählige Klammern werden vor dem Start
 freundlich gemeldet.
 
-## Sterne-Bewertung (Effizienz)
+## Level & Fortschritt
 
-Nach jedem gelösten Level gibt es **1–3 Sterne**. Das Spiel kennt die
-theoretisch kürzeste Lösung (per Breitensuche über alle Zustände sicher
-berechnet) und vergleicht sie mit der Anzahl deiner Bausteine:
+Es gibt **20 Level pro Schwierigkeit** (60 insgesamt), alle per Breitensuche
+auf Lösbarkeit geprüft. Nach dem letzten Level einer Stufe geht es
+**automatisch eine Stufe höher** (leicht → mittel → schwer). Nach „schwer"
+bleibt es bei „schwer" – es wird nie selbstständig auf eine leichtere Stufe
+zurückgeschaltet.
 
-- ⭐⭐⭐ sehr effizient (nahe am Minimum)
-- ⭐⭐ solide, geht aber kürzer
-- ⭐ geschafft – aber mit deutlich zu vielen Bausteinen
+## Bewertung (zwei Reihen)
 
-Wer **Schleifen** statt vieler einzelner Blöcke nutzt, kommt mit weniger
-Bausteinen aus und holt mehr Sterne. Bei weniger als drei Sternen erscheint
-ein **„Nochmal"**-Button, der das Programm erhält, damit man es gezielt
-verbessern kann.
+Nach jedem gelösten Level gibt es zwei Bewertungen mit je **1–3 Symbolen**:
+
+- **⭐ Sterne – cleverer Code:** Das Spiel kennt die theoretisch kürzeste
+  Lösung (sicher per Breitensuche berechnet) und vergleicht sie mit der
+  Anzahl deiner Bausteine. Wer **Schleifen** statt vieler Einzelblöcke nutzt,
+  bekommt mehr Sterne.
+- **💡 Glühbirnen – gleich richtig gedacht:** Beim **1. Versuch** gelöst gibt
+  die volle Punktzahl; je mehr Versuche, desto weniger. Das motiviert, erst
+  zu überlegen statt nur auszuprobieren.
+
+Ist noch Luft nach oben, erscheint ein **„Nochmal"**-Button, der das Programm
+erhält, damit man es gezielt verbessern kann.
+
+## Sichtbares Feedback
+
+Läuft etwas schief, zeigt das Spielbrett direkt **wo**: ein 💥 auf dem Feld,
+gegen das die Katze gestoßen ist, bzw. ein ❓, wenn das Ziel nicht erreicht
+wurde – nicht nur als Text. Die gelaufene Spur mit Dreh-Symbolen (↰ / ↱)
+hilft beim Nachvollziehen.
 
 Ein Tipp auf einen bereits gelegten Befehlsblock **löscht** diesen wieder.
 Die Warteschlange bricht bei vielen Befehlen **mehrzeilig** um, damit das
