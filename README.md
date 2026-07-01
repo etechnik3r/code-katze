@@ -1,6 +1,6 @@
 # 🐱 Code-Katze
 
-> **JonFie Studios präsentiert:** ein pädagogisches, Mobile-First Browserspiel,
+> **JONFIE STUDIOS präsentiert:** ein pädagogisches, Mobile-First Browserspiel,
 > mit dem Kinder spielerisch **algorithmisches Denken** (Pre-Coding) üben.
 
 ## Idee
