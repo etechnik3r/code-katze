@@ -27,6 +27,33 @@ unendlich viele Versuche.
 | 🧹 Löschen | Die gesamte Warteschlange leeren |
 
 Ein Tipp auf einen bereits gelegten Befehlsblock **löscht** diesen wieder.
+Die Warteschlange bricht bei vielen Befehlen **mehrzeilig** um, damit das
+ganze „Programm" auf einen Blick sichtbar bleibt.
+
+## Nachvollziehen & Debuggen
+
+- Der **gelaufene Weg** wird als gepunktete Linie eingezeichnet; an den
+  Stellen, wo die Katze abgebogen ist, erscheinen kleine Dreh-Symbole
+  (↺ / ↻). So kann man in Ruhe nachvollziehen, wie die Katze gelaufen ist.
+- Nach einem Fehlversuch geht die Katze zurück auf Start – die
+  Warteschlange **bleibt erhalten**, damit man den Fehler suchen und
+  korrigieren kann. Unendlich viele Versuche.
+
+## Einstellungen (⚙️ oben rechts)
+
+- **Schwierigkeit** in drei Farben für verschiedene Altersstufen:
+  Leicht (grün, ab ~5 J.), Mittel (orange, ab ~7 J.), Schwer (rot, ab ~9 J.).
+- **Gelaufene Spur** ein-/ausblenden.
+- **Symbol-Legende**, die alle vorkommenden Symbole erklärt.
+
+Die gewählten Einstellungen werden im Browser gespeichert (localStorage).
+
+## Die Katze
+
+Die Katze ist bewusst **nicht** als Emoji-Gesicht umgesetzt, sondern aus
+reinen CSS-Formen gebaut (Kopf, Ohren, Augen und eine nach vorne zeigende
+Nase). So ist immer klar erkennbar, in welche Richtung sie schaut – und
+die Drehungen sind gut sichtbar.
 
 ## Starten
 
@@ -45,8 +72,10 @@ game.js      – Spiel-Logik (Vanilla JavaScript, ausführlich kommentiert)
 
 ### Neue Level hinzufügen
 
-Im Array `LEVELS` (oben in `game.js`) einfach einen neuen Eintrag anhängen.
-Eine Karte besteht aus Textzeilen mit je einem Zeichen pro Feld:
+Im Objekt `SCHWIERIGKEITEN` (oben in `game.js`) bei der passenden Stufe
+(`leicht` / `mittel` / `schwer`) einfach einen neuen Eintrag an die
+`levels`-Liste anhängen. Eine Karte besteht aus Textzeilen mit je einem
+Zeichen pro Feld:
 
 ```
 .  = freies Feld

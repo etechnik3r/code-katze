@@ -5,7 +5,7 @@
    - MOBILE FIRST: Layout ist für schmale Smartphone-Hochformate gebaut.
    - Große Tap-Targets (mind. ~56px), keine fürs Spiel nötigen Hover-Effekte.
    - Aufgeräumte, warme und freundliche Farbpalette (nicht überladen).
-   - Keine Bilddateien: Grafik nur über Emojis und CSS-Formen.
+   - Keine Bilddateien: Grafik nur über Emojis und CSS-Formen (auch die Katze!).
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -23,6 +23,18 @@
   --farbe-zelle:     #eafaf4;  /* freie Zelle                */
   --farbe-ziel:      #fff3c4;  /* Zielfeld (Fisch)           */
   --farbe-aktiv:     #ffd166;  /* hervorgehobener Queue-Block*/
+
+  /* Farben für die Katze (nur CSS-Formen, keine Emojis) */
+  --katze-koerper:   #f4a259;
+  --katze-kopf:      #f7b872;
+  --katze-dunkel:    #e0863d;
+  --katze-nase:      #e07a9f;
+
+  /* Schwierigkeits-Farben (Wiedererkennung wie in anderen JonFie-Spielen) */
+  --leicht:          #3ec96a;
+  --mittel:          #ff8a5c;
+  --schwer:          #e23b3b;
+
   --schatten:        0 4px 10px rgba(0, 0, 0, 0.12);
   --radius:          14px;
 }
@@ -60,9 +72,10 @@ body {
 }
 
 /* ==========================================================================
-   1. HEADER
+   1. HEADER  (+ Zahnrad)
    ========================================================================== */
 .kopf {
+  position: relative;         /* damit das Zahnrad absolut sitzen kann */
   text-align: center;
   padding: 10px 12px 6px;
 }
@@ -80,6 +93,23 @@ body {
   font-weight: 800;
   margin-top: 2px;
 }
+
+/* Einstellungs-Zahnrad oben rechts */
+.zahnrad {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--farbe-panel);
+  box-shadow: var(--schatten);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.zahnrad:active { transform: rotate(40deg) scale(0.95); }
 
 /* ==========================================================================
    2. STATUS-LEISTE
@@ -100,6 +130,20 @@ body {
   font-weight: 800;
   color: var(--farbe-akzent-d);
   white-space: nowrap;
+  /* kleiner Farbpunkt links zeigt die Schwierigkeit an (per JS gesetzt) */
+  padding-left: 16px;
+  position: relative;
+}
+.status__level::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--schwierigkeit-farbe, var(--mittel));
 }
 
 .status__meldung {
@@ -136,7 +180,8 @@ body {
 .spielfeld {
   /* Das Grid ist immer quadratisch und passt sich der Breite an.
      Die Anzahl der Spalten/Zeilen setzt game.js via Inline-Style. */
-  width: min(92vw, 70vh, 460px);
+  position: relative;                 /* Bezug für Katze & Spur-Overlay */
+  width: min(92vw, 66vh, 460px);
   aspect-ratio: 1 / 1;
   display: grid;
   gap: 4px;
@@ -163,31 +208,140 @@ body {
   background: var(--farbe-ziel);
 }
 
-/*
-  Die Katze ist ein eigenes Element, das ÜBER den Zellen liegt und sanft
-  von Feld zu Feld gleitet. So lässt sich die Bewegung schön animieren.
-*/
+/* --------------------------------------------------------------------------
+   SPUR-OVERLAY: eine SVG-Ebene über den Zellen, aber UNTER der Katze.
+   Zeichnet die gelaufene Linie und die Dreh-Symbole. (per JS befüllt)
+   -------------------------------------------------------------------------- */
+.spur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  pointer-events: none;       /* darf keine Tipps abfangen */
+}
+.spur__linie {
+  fill: none;
+  stroke: var(--farbe-akzent);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.65;
+  stroke-dasharray: 2 9;      /* gepunktete Linie = "so ist sie gelaufen" */
+}
+.spur__punkt {
+  fill: var(--farbe-akzent-d);
+}
+.spur__dreh {
+  font-size: 20px;
+  font-weight: 800;
+  fill: var(--farbe-akzent-d);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* --------------------------------------------------------------------------
+   DIE KATZE  (komplett aus CSS-Formen; klare Blickrichtung nach vorne)
+   --------------------------------------------------------------------------
+   Aufbau von oben ("vorne") nach unten ("hinten"):
+     Ohren + Kopf mit Augen und Nase  =  Vorderseite (Blickrichtung)
+     Körper                            =  Mitte
+     Schweif                           =  Hinterseite
+   Das ganze Element wird per JS gedreht (rotate), sodass die Katze immer
+   in ihre echte Laufrichtung schaut. Grundausrichtung = nach OBEN.
+   -------------------------------------------------------------------------- */
 .katze {
   position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(20px, 8vw, 46px);
-  /* weiche Bewegung beim Wechsel der Position und beim Drehen */
-  transition: transform 0.28s ease;
+  top: 0;
+  left: 0;
   z-index: 5;
   pointer-events: none;
+  /* weiche Bewegung beim Gleiten von Feld zu Feld UND beim Drehen */
+  transition: transform 0.3s ease;
   will-change: transform;
 }
 
-/* Kleiner Hüpfer, wenn die Katze gegen eine Wand/ein Hindernis läuft */
+/* Schweif (Schwanz) hinten unten – signalisiert die "Rückseite" */
+.katze__schweif {
+  position: absolute;
+  left: 50%;
+  bottom: -4%;
+  width: 13%;
+  height: 42%;
+  margin-left: -6.5%;
+  background: var(--katze-dunkel);
+  border-radius: 8px;
+  transform-origin: top center;
+  transform: rotate(20deg);
+}
+
+/* Körper (ovale Grundform) */
+.katze__koerper {
+  position: absolute;
+  left: 19%;
+  top: 37%;
+  width: 62%;
+  height: 55%;
+  background: var(--katze-koerper);
+  border-radius: 46% 46% 40% 40%;
+}
+
+/* Ohren (Dreiecke) – sitzen vorne oben */
+.katze__ohr {
+  position: absolute;
+  top: 3%;
+  width: 22%;
+  height: 24%;
+  background: var(--katze-koerper);
+  /* clip-path erzeugt ein Dreieck; % ist hier erlaubt */
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+.katze__ohr--l { left: 22%;  transform: rotate(-12deg); }
+.katze__ohr--r { right: 22%; transform: rotate(12deg); }
+
+/* Kopf (Kreis) – liegt über den Ohransätzen */
+.katze__kopf {
+  position: absolute;
+  left: 24%;
+  top: 11%;
+  width: 52%;
+  height: 50%;
+  background: var(--katze-kopf);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* Augen – im oberen (vorderen) Bereich des Kopfes */
+.katze__auge {
+  position: absolute;
+  top: 26%;
+  width: 15%;
+  height: 20%;
+  background: var(--farbe-text);
+  border-radius: 50%;
+}
+.katze__auge--l { left: 24%; }
+.katze__auge--r { right: 24%; }
+
+/* Nase – kleines Dreieck, dessen Spitze GENAU nach vorne zeigt.
+   Das ist der wichtigste Richtungs-Hinweis für das Kind. */
+.katze__nase {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16%;
+  height: 13%;
+  margin-left: -8%;
+  background: var(--katze-nase);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+/* Kleiner "Bonk"-Effekt, wenn die Katze gegen Wand/Hindernis läuft */
 .katze--bonk {
   animation: bonk 0.35s ease;
 }
-
 @keyframes bonk {
   0%, 100% { filter: none; }
-  50%      { filter: saturate(1.6) drop-shadow(0 0 6px #e23b3b); }
+  50%      { filter: saturate(1.7) drop-shadow(0 0 7px #e23b3b); }
 }
 
 /* ==========================================================================
@@ -226,7 +380,7 @@ body {
 }
 
 /* ==========================================================================
-   5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE)
+   5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE) – jetzt MEHRZEILIG
    ========================================================================== */
 .queue-bereich {
   margin: 4px 12px;
@@ -242,18 +396,16 @@ body {
 
 .queue {
   display: flex;
+  flex-wrap: wrap;          /* WICHTIG: bricht bei Bedarf in neue Zeilen um */
+  align-content: flex-start;
   gap: 8px;
-  align-items: center;
   min-height: 62px;
+  max-height: 22vh;         /* bei sehr vielen Befehlen: scrollen statt wachsen */
+  overflow-y: auto;
   padding: 8px;
   background: var(--farbe-panel);
   border-radius: var(--radius);
   box-shadow: var(--schatten);
-
-  /* Horizontal scrollbar, falls viele Befehle gelegt wurden */
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch; /* sanftes Scrollen auf iOS */
 }
 
 .queue__leer {
@@ -261,11 +413,12 @@ body {
   font-style: italic;
   font-size: 0.88rem;
   padding-left: 4px;
+  align-self: center;
 }
 
 /* Einzelner Befehlsblock in der Warteschlange */
 .queue-block {
-  flex: 0 0 auto;          /* feste Größe, nicht stauchen */
+  flex: 0 0 auto;
   width: 46px;
   height: 46px;
   display: flex;
@@ -355,7 +508,7 @@ body {
 }
 
 /* ==========================================================================
-   7. GEWINN-OVERLAY
+   7. OVERLAYS (Gewinn UND Einstellungen teilen sich das Grundgerüst)
    ========================================================================== */
 .overlay {
   position: fixed;
@@ -364,7 +517,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
   z-index: 50;
 
   /* Standardmäßig unsichtbar; .overlay--sichtbar blendet es ein */
@@ -379,26 +532,32 @@ body {
 }
 
 .overlay__box {
+  position: relative;
   background: var(--farbe-panel);
   border-radius: 22px;
   padding: 28px 24px;
   text-align: center;
-  max-width: 320px;
+  max-width: 340px;
   width: 100%;
   box-shadow: var(--schatten);
   transform: scale(0.85);
   transition: transform 0.25s ease;
 }
-
 .overlay--sichtbar .overlay__box {
   transform: scale(1);
+}
+
+/* Einstellungs-Box darf höher werden und bei Bedarf scrollen */
+.overlay__box--settings {
+  text-align: left;
+  max-height: 88vh;
+  overflow-y: auto;
 }
 
 .overlay__emoji {
   font-size: 3.2rem;
   animation: hüpfen 0.6s ease infinite alternate;
 }
-
 @keyframes hüpfen {
   from { transform: translateY(0); }
   to   { transform: translateY(-10px); }
@@ -418,6 +577,142 @@ body {
   width: 100%;
 }
 
+/* Schließen-Kreuz oben rechts in Modalen */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--farbe-bg);
+  color: var(--farbe-text);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   8. EINSTELLUNGEN – Inhalte (Schwierigkeit, Schalter, Legende)
+   ========================================================================== */
+.setting-gruppe {
+  margin: 14px 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--farbe-grid);
+}
+.setting-gruppe:last-of-type { border-bottom: none; }
+
+.setting-titel {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.setting-hinweis {
+  margin-top: 6px;
+  font-size: 0.76rem;
+  color: #8a869a;
+}
+
+/* --- Schwierigkeitsauswahl (drei farbige Karten) --- */
+.schwierigkeit-wahl {
+  display: flex;
+  gap: 8px;
+}
+
+.schwer-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  background: var(--farbe-bg);
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--farbe-text);
+}
+.schwer-btn__name  { font-weight: 800; }
+.schwer-btn__alter { font-size: 0.66rem; color: #8a869a; }
+
+/* Der farbige Punkt/Rand pro Stufe */
+.schwer-btn--leicht .schwer-btn__name { color: var(--leicht); }
+.schwer-btn--mittel .schwer-btn__name { color: var(--mittel); }
+.schwer-btn--schwer .schwer-btn__name { color: var(--schwer); }
+
+/* Aktive Stufe wird farblich umrandet (per JS gesetzte Klasse) */
+.schwer-btn--aktiv.schwer-btn--leicht { border-color: var(--leicht); background: #eafcef; }
+.schwer-btn--aktiv.schwer-btn--mittel { border-color: var(--mittel); background: #fff1ea; }
+.schwer-btn--aktiv.schwer-btn--schwer { border-color: var(--schwer); background: #fdeaea; }
+
+/* --- Schalter (Toggle) für die Spur --- */
+.schalter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+.schalter__text { font-size: 0.95rem; }
+
+/* Das echte Checkbox-Element verstecken, aber bedienbar lassen */
+.schalter input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Optische Schiene + Knopf */
+.schalter__track {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 30px;
+  background: #d5d1df;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+.schalter__knopf {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+/* Wenn die Checkbox aktiv ist: Schiene grün + Knopf nach rechts */
+.schalter input:checked + .schalter__track {
+  background: var(--farbe-play);
+}
+.schalter input:checked + .schalter__track .schalter__knopf {
+  transform: translateX(22px);
+}
+
+/* --- Legende (Symbol-Erklärung) --- */
+.legende {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.legende li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+.legende__icon {
+  flex: 0 0 auto;
+  width: 34px;
+  text-align: center;
+  font-size: 1.25rem;
+}
+
 /* ==========================================================================
    Anpassung für sehr kleine Geräte (Höhe), damit nichts abgeschnitten wird
    ========================================================================== */
@@ -426,4 +721,5 @@ body {
   .aktion-btn        { min-height: 52px; }
   .steuer-btn        { min-height: 52px; }
   .queue             { min-height: 56px; }
+  .spielfeld         { width: min(88vw, 58vh, 460px); }
 }
