@@ -24,8 +24,8 @@ mögen (🥛 Milch, 🐭 Maus, 🧶 Wollknäuel, 🐦 Vogel, 🦋 Schmetterling 
 | Button | Bedeutung |
 | ------ | --------- |
 | ⬆️ Schritt | Einen Schritt in Blickrichtung vorwärts |
-| ↺ Links | Die Katze nach links drehen (gegen den Uhrzeigersinn) |
-| ↻ Rechts | Die Katze nach rechts drehen (im Uhrzeigersinn) |
+| ↰ Links | Die Katze eine Vierteldrehung nach links |
+| ↱ Rechts | Die Katze eine Vierteldrehung nach rechts |
 | ▶︎ Start | Die Warteschlange ausführen |
 | 🧹 Löschen | Die gesamte Warteschlange leeren |
 
@@ -89,7 +89,7 @@ ganze „Programm" auf einen Blick sichtbar bleibt.
 
 - Der **gelaufene Weg** wird als gepunktete Linie eingezeichnet; an den
   Stellen, wo die Katze abgebogen ist, erscheinen kleine Dreh-Symbole
-  (↺ / ↻). So kann man in Ruhe nachvollziehen, wie die Katze gelaufen ist.
+  (↰ / ↱). So kann man in Ruhe nachvollziehen, wie die Katze gelaufen ist.
 - Nach einem Fehlversuch geht die Katze zurück auf Start – die
   Warteschlange **bleibt erhalten**, damit man den Fehler suchen und
   korrigieren kann. Unendlich viele Versuche.
@@ -145,4 +145,4 @@ H  = Hund (Hindernis)
 
 ---
 
-© JonFie Studios
+© JONFIE STUDIOS
