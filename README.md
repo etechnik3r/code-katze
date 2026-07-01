@@ -16,15 +16,37 @@ schlimm: **Die Warteschlange bleibt erhalten**, damit das Kind seinen Code in
 Ruhe prüfen, den Fehler suchen („debuggen“) und verbessern kann. Es gibt
 unendlich viele Versuche.
 
+Das Ziel ist nicht immer ein Fisch – es gibt auch andere Dinge, die Katzen
+mögen (🥛 Milch, 🐭 Maus, 🧶 Wollknäuel, 🐦 Vogel, 🦋 Schmetterling …).
+
 ## Steuerung
 
 | Button | Bedeutung |
 | ------ | --------- |
 | ⬆️ Schritt | Einen Schritt in Blickrichtung vorwärts |
-| ↩️ Links | Die Katze nach links drehen |
-| ↪️ Rechts | Die Katze nach rechts drehen |
+| ↺ Links | Die Katze nach links drehen (gegen den Uhrzeigersinn) |
+| ↻ Rechts | Die Katze nach rechts drehen (im Uhrzeigersinn) |
 | ▶︎ Start | Die Warteschlange ausführen |
 | 🧹 Löschen | Die gesamte Warteschlange leeren |
+
+## Profi-Modus (Schleifen & Logik)
+
+Im ⚙️-Menü lässt sich der **Profi-Modus** einschalten. Dann erscheinen
+zusätzliche Bausteine, die mit Klammern arbeiten – ein Öffner `(` und der
+Schließer `)`. Alles zwischen den Klammern gehört zusammen und darf auch
+verschachtelt werden:
+
+| Baustein | Bedeutung |
+| -------- | --------- |
+| 🔁 2× ( … ) | Wiederholt den Inhalt **zweimal** |
+| 🔁 3× ( … ) | Wiederholt den Inhalt **dreimal** |
+| 🎯 bis Ziel ( … ) | Wiederholt den Inhalt, **bis das Ziel erreicht** ist |
+| ❓ wenn frei ( … ) | Führt den Inhalt nur aus, **wenn das Feld vor der Katze frei** ist |
+| ) Ende | Schließt die zuletzt geöffnete Klammer |
+
+So üben Kinder die zentralen Programmier-Konzepte **Schleife** und
+**Bedingung**. Fehlende oder überzählige Klammern werden vor dem Start
+freundlich gemeldet.
 
 Ein Tipp auf einen bereits gelegten Befehlsblock **löscht** diesen wieder.
 Die Warteschlange bricht bei vielen Befehlen **mehrzeilig** um, damit das

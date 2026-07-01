@@ -373,11 +373,42 @@ body {
 .aktion-btn__icon { font-size: 1.5rem; line-height: 1; }
 .aktion-btn__text { font-size: 0.78rem; }
 
+/* Dreh-Symbole (↺ ↻) sind Text-Glyphen – etwas kräftiger darstellen */
+.aktion-btn__icon--dreh {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--farbe-akzent-d);
+}
+
 /* Gedrückt-Zustand statt Hover (touch-freundlich) */
 .aktion-btn:active {
   transform: scale(0.95);
   border-color: var(--farbe-akzent);
 }
+
+/* --- Profi-Bausteine (zweite Aktionsreihe) --- */
+.aktionen--profi {
+  flex-wrap: wrap;               /* passen sich der Bildschirmbreite an */
+  padding-top: 0;
+}
+.aktionen--profi .aktion-btn {
+  flex: 1 1 28%;                 /* ca. drei pro Reihe, brechen bei Bedarf um */
+  min-height: 52px;
+}
+/* Logikblöcke (Schleifen/Bedingungen) in einer eigenen Farbe (Violett) */
+.aktion-btn--logik {
+  border-color: #c9b8f0;
+  background: #f3eefe;
+}
+.aktion-btn--logik:active { border-color: #8a63d2; }
+.aktion-btn--logik .aktion-btn__text { color: #6a44b8; font-weight: 800; }
+
+/* Schließende Klammer optisch abgesetzt */
+.aktion-btn--klammer {
+  border-color: #c9b8f0;
+  background: #ece4fb;
+}
+.aktion-btn--klammer .aktion-btn__icon { color: #6a44b8; font-weight: 800; }
 
 /* ==========================================================================
    5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE) – jetzt MEHRZEILIG
@@ -434,6 +465,26 @@ body {
 }
 
 .queue-block:active { transform: scale(0.9); }
+
+/* Logik-Bausteine in der Queue: violett und (wegen Text) etwas breiter */
+.queue-block--logik,
+.queue-block--klammer {
+  width: auto;
+  min-width: 46px;
+  padding: 0 10px;
+  font-size: 1rem;
+  font-weight: 800;
+}
+.queue-block--logik {
+  background: #f3eefe;
+  border-color: #c9b8f0;
+  color: #6a44b8;
+}
+.queue-block--klammer {
+  background: #ece4fb;
+  border-color: #c9b8f0;
+  color: #6a44b8;
+}
 
 /* Kleines Lösch-Kreuz oben rechts als Hinweis "antippen = entfernen" */
 .queue-block::after {
@@ -606,6 +657,11 @@ body {
 .setting-titel {
   font-weight: 800;
   margin-bottom: 8px;
+}
+.setting-titel--klein {
+  margin-top: 14px;
+  font-size: 0.92rem;
+  color: #6a44b8;
 }
 
 .setting-hinweis {
