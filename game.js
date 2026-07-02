@@ -579,8 +579,17 @@ let aktuellesZiel = STANDARD_ZIEL;
 // Vom Nutzer wählbare Einstellungen (werden im Browser gespeichert):
 let einstellungen = {
   spurAnzeigen: true,
-  profiModus:   false,   // Schleifen & Logik-Bausteine freischalten
+  profiModus:   false,     // Schleifen & Logik-Bausteine freischalten
+  tonAn:        true,      // Geräusche + Vibration
+  tempo:        'normal',  // 'langsam' | 'normal' | 'schnell'
 };
+
+// Wurde das kleine Start-Tutorial schon gezeigt? (nur beim 1. Besuch)
+let tutorialGesehen = false;
+
+// Beste Sterne-Zahl pro Level, getrennt je Stufe: bestSterne.leicht['3'] = 2
+// (wird für die Level-Auswahl angezeigt und im Browser gespeichert).
+let bestSterne = { leicht: {}, mittel: {}, schwer: {} };
 
 // Grund des letzten Fehlschlags (wird vom Interpreter gesetzt):
 let fehlerGrund = '';
@@ -621,6 +630,16 @@ const elSettingsFertig = document.getElementById('settingsFertig');
 const elSpurToggle     = document.getElementById('spurToggle');
 const elProfiToggle    = document.getElementById('profiToggle');
 const elProfiAktionen  = document.getElementById('profiAktionen');
+const elTonToggle      = document.getElementById('tonToggle');
+
+// Tutorial-Overlay (nur beim ersten Start)
+const elTutorial       = document.getElementById('tutorialOverlay');
+const elTutorialBtn    = document.getElementById('tutorialBtn');
+
+// Level-Auswahl-Overlay
+const elLevelWahl      = document.getElementById('levelWahlOverlay');
+const elLevelWahlGrid  = document.getElementById('levelWahlGrid');
+const elLevelWahlClose = document.getElementById('levelWahlClose');
 
 // Diese Elemente werden bei jedem Levelaufbau neu erzeugt:
 let elKatze = null;   // die CSS-Katze
@@ -667,8 +686,10 @@ function ladeLevel(index) {
     }
   }
 
-  // 3) Status-Anzeige aktualisieren (Levelname + Schwierigkeitsfarbe).
-  elLevel.textContent = 'Level ' + (index + 1);
+  // 3) Status-Anzeige: Stufe + Fortschritt, z. B. "Leicht · 3/20".
+  elLevel.textContent =
+    SCHWIERIGKEITEN[aktuelleSchwierigkeit].label +
+    ' · ' + (index + 1) + '/' + aktuelleLevels().length;
   setzeMeldung('Tippe Befehle, dann ▶︎', false);
   versuche = 0;   // neuer Level -> Versuchszähler zurücksetzen (für 💡-Bonus)
 
@@ -862,11 +883,71 @@ function zeichneQueue() {
    Ablauf von oben nach unten liest, obwohl echte Zeit vergeht.
    -------------------------------------------------------------------------- */
 
-const SCHRITT_DELAY = 500; // Millisekunden Pause zwischen zwei Befehlen
+/*
+  Tempo: Wie lange die Pause zwischen zwei Befehlen ist (in Millisekunden).
+  Über die Einstellungen wählbar: 🐢 langsam · 🐾 normal · 🐇 schnell.
+*/
+const TEMPO_DELAY = { langsam: 750, normal: 500, schnell: 280 };
+
+/** Aktuelle Schritt-Pause je nach gewähltem Tempo. */
+function schrittDelay() {
+  return TEMPO_DELAY[einstellungen.tempo] || TEMPO_DELAY.normal;
+}
+
+/** Kurze Pause beim Hervorheben von Schleifen-Köpfen (skaliert mit Tempo). */
+function blockDelay() {
+  return Math.round(schrittDelay() * 0.45);
+}
 
 /** Pause: Promise, das nach 'ms' Millisekunden erfüllt wird. */
 function warte(ms) {
   return new Promise((aufloesen) => setTimeout(aufloesen, ms));
+}
+
+/* --------------------------------------------------------------------------
+   TON & VIBRATION (abschaltbar über die Einstellungen)
+   --------------------------------------------------------------------------
+   Alle Geräusche werden mit der WebAudio-API direkt im Browser erzeugt –
+   es werden also KEINE Audiodateien benötigt. Jeder Ton ist ein kurzer
+   Sinus-/Dreieck-Ton, dessen Lautstärke schnell ausklingt ("Blip").
+   -------------------------------------------------------------------------- */
+let audioCtx = null;   // wird beim ersten Ton angelegt (Browser-Vorgabe)
+
+function spieleTon(art) {
+  if (!einstellungen.tonAn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = audioCtx.currentTime;
+
+    // Hilfsfunktion: einen kurzen, ausklingenden Ton einplanen.
+    const blip = (freq, start, dauer, wellenform, lautstaerke) => {
+      const osc  = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = wellenform;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(lautstaerke, t + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + start + dauer);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t + start);
+      osc.stop(t + start + dauer);
+    };
+
+    if (art === 'schritt') blip(520, 0, 0.09, 'triangle', 0.07);
+    if (art === 'dreh')    blip(392, 0, 0.09, 'triangle', 0.05);
+    if (art === 'bonk')  { blip(150, 0, 0.28, 'sawtooth', 0.10); vibriere(180); }
+    if (art === 'sieg')  { // kleine Aufwärts-Melodie (C–E–G)
+      blip(523, 0.00, 0.16, 'triangle', 0.09);
+      blip(659, 0.14, 0.16, 'triangle', 0.09);
+      blip(784, 0.28, 0.30, 'triangle', 0.10);
+      vibriere([60, 40, 60]);
+    }
+  } catch (e) { /* Ton nicht verfügbar – still weiterspielen */ }
+}
+
+/** Kurze Vibration auf unterstützten Geräten (Teil von "Ton & Vibration"). */
+function vibriere(muster) {
+  if (einstellungen.tonAn && navigator.vibrate) navigator.vibrate(muster);
 }
 
 // Sicherheitsgrenze für die "bis Ziel"-Schleife, damit sie nie ewig läuft.
@@ -973,8 +1054,14 @@ function baueProgramm() {
       if (OEFFNER.has(t.typ)) {
         i++;                       // Öffner überspringen
         const kinder = leseListe();
-        if (i < tokens.length && tokens[i].typ === 'ende') i++; // ')' überspringen
-        liste.push({ art: 'block', typ: t.typ, index: t.index, kinder });
+        // Position der schließenden ')' merken – damit beim Ausführen der
+        // GANZE Klammer-Bereich in der Queue hervorgehoben werden kann.
+        let endeIndex = t.index;
+        if (i < tokens.length && tokens[i].typ === 'ende') {
+          endeIndex = tokens[i].index;
+          i++;                     // ')' überspringen
+        }
+        liste.push({ art: 'block', typ: t.typ, index: t.index, endeIndex, kinder });
       } else {
         liste.push({ art: 'simpel', typ: t.typ, index: t.index });
         i++;
@@ -1010,7 +1097,9 @@ async function fuehreKnoten(k) {
     const ergebnis = fuehreBefehlAus(k.typ);
     zeichneKatze();
     zeichneSpur();
-    await warte(SCHRITT_DELAY);
+    // Passendes Geräusch zum Schritt bzw. zur Drehung.
+    spieleTon(!ergebnis.gueltig ? 'bonk' : (k.typ === 'vor' ? 'schritt' : 'dreh'));
+    await warte(schrittDelay());
 
     if (!ergebnis.gueltig) {
       // Zusammenstoß direkt auf dem Feld sichtbar machen (💥 auf dem Feld,
@@ -1028,12 +1117,14 @@ async function fuehreKnoten(k) {
   // Wiederhol-Schleife mit fester Anzahl (2× oder 3×).
   if (k.typ === 'loop2' || k.typ === 'loop3') {
     const anzahl = (k.typ === 'loop2') ? 2 : 3;
+    markiereBereich(k.index, k.endeIndex, true);   // ganze Klammer markieren
     for (let runde = 0; runde < anzahl; runde++) {
       hebeBlockHervor(k.index);
-      await warte(230);
+      await warte(blockDelay());
       const status = await fuehreProgramm(k.kinder);
       if (status !== 'weiter') return status;
     }
+    markiereBereich(k.index, k.endeIndex, false);
     return 'weiter';
   }
 
@@ -1043,9 +1134,10 @@ async function fuehreKnoten(k) {
       fehlerGrund = 'Die „bis Ziel"-Schleife ist leer. Lege Befehle hinein! 🧩';
       return 'fehler';
     }
+    markiereBereich(k.index, k.endeIndex, true);   // ganze Klammer markieren
     for (let runde = 0; runde < MAX_ZIEL_WIEDERHOLUNGEN; runde++) {
       hebeBlockHervor(k.index);
-      await warte(230);
+      await warte(blockDelay());
       const status = await fuehreProgramm(k.kinder);
       if (status !== 'weiter') return status;   // gewonnen oder fehler
     }
@@ -1061,50 +1153,76 @@ async function fuehreKnoten(k) {
       return 'fehler';
     }
     let runden = 0;
+    markiereBereich(k.index, k.endeIndex, true);   // ganze Klammer markieren
     while (istVorneFrei()) {
       if (runden++ >= MAX_ZIEL_WIEDERHOLUNGEN) {
         fehlerGrund = 'Die Schleife lief sehr oft, ohne anzuhalten. 🔁';
         return 'fehler';
       }
       hebeBlockHervor(k.index);
-      await warte(230);
+      await warte(blockDelay());
       const status = await fuehreProgramm(k.kinder);
       if (status !== 'weiter') return status;
     }
+    markiereBereich(k.index, k.endeIndex, false);
     return 'weiter';
   }
 
   // "wenn frei": Inhalt nur ausführen, wenn das Feld vor der Katze frei ist.
   if (k.typ === 'wennFrei') {
+    markiereBereich(k.index, k.endeIndex, true);
     hebeBlockHervor(k.index);
-    await warte(230);
+    await warte(blockDelay());
+    let status = 'weiter';
     if (istVorneFrei()) {
-      return await fuehreProgramm(k.kinder);
+      status = await fuehreProgramm(k.kinder);
     }
-    return 'weiter';   // Bedingung nicht erfüllt -> Inhalt überspringen
+    markiereBereich(k.index, k.endeIndex, false);
+    return status;   // Bedingung nicht erfüllt -> Inhalt übersprungen
   }
 
   // "wenn Wand": Inhalt nur ausführen, wenn das Feld voraus BLOCKIERT ist
   // (Wand oder Hindernis). Gegenstück zu "wenn frei".
   if (k.typ === 'wennWand') {
+    markiereBereich(k.index, k.endeIndex, true);
     hebeBlockHervor(k.index);
-    await warte(230);
+    await warte(blockDelay());
+    let status = 'weiter';
     if (!istVorneFrei()) {
-      return await fuehreProgramm(k.kinder);
+      status = await fuehreProgramm(k.kinder);
     }
-    return 'weiter';
+    markiereBereich(k.index, k.endeIndex, false);
+    return status;
   }
 
   return 'weiter';
 }
 
-/** Hebt den Block an Position 'index' in der Queue hervor (aktiver Schritt). */
+/**
+ * Hebt den Block an Position 'index' in der Queue hervor (aktiver Schritt).
+ * Die Bereichs-Markierung von Schleifen (siehe markiereBereich) bleibt
+ * dabei absichtlich bestehen – sie zeigt, WAS gerade wiederholt wird,
+ * während der gelbe "aktiv"-Block den EINZELNEN Schritt zeigt.
+ */
 function hebeBlockHervor(index) {
   queueBloecke.forEach((b) => b.classList.remove('queue-block--aktiv'));
   const block = queueBloecke[index];
   if (block) {
     block.classList.add('queue-block--aktiv');
     block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+/**
+ * Markiert (an=true) oder entmarkiert (an=false) den gesamten Klammer-
+ * Bereich einer Schleife/Bedingung in der Queue – Öffner bis Schließer.
+ * Bei verschachtelten Schleifen überlagern sich die Markierungen einfach.
+ */
+function markiereBereich(von, bis, an) {
+  for (let i = von; i <= bis; i++) {
+    if (queueBloecke[i]) {
+      queueBloecke[i].classList.toggle('queue-block--bereich', an);
+    }
   }
 }
 
@@ -1401,6 +1519,7 @@ function zeichneReihe(el, anzahl, vollSymbol, leerSymbol) {
 /** Die Katze hat das Ziel erreicht. */
 async function levelGeschafft() {
   setzeMeldung('Super! ' + aktuellesZiel.i, false);
+  spieleTon('sieg');
   await warte(400);
 
   // --- Bewertung berechnen ---
@@ -1409,13 +1528,23 @@ async function levelGeschafft() {
   const sterne    = berechneSterne(bausteine, minimum);   // Effizienz (Code)
   const knobel    = berechneKnobel(versuche);             // gleich richtig?
 
-  // Zwei Icon-Reihen: ⭐ = cleverer Code, 💡 = beim 1. Mal geschafft.
+  // Zwei beschriftete Reihen: ⭐ "Kurzer Code", 💡 "Wenig Versuche".
   zeichneReihe(elSterne, sterne, '★', '☆');
   zeichneReihe(elKnobel, knobel, '💡', '💡');
 
-  // Sehr kurze Rückmeldung (wenig Text, dafür klare Zahlen mit Icons).
-  const versuchText = (versuche === 1) ? '1. Versuch 🎉' : (versuche + ' Versuche');
-  elBewertung.textContent = '🧩 ' + bausteine + '  ·  🎯 ' + minimum + '  ·  ' + versuchText;
+  // Erklärte Zahlen in einfachen Wörtern (statt kryptischer Icons).
+  const codeText = (bausteine <= minimum)
+    ? 'Dein Code: ' + bausteine + ' Bausteine – kürzer geht es nicht!'
+    : 'Dein Code: ' + bausteine + ' Bausteine. Es geht auch mit ' + minimum + '!';
+  const versuchText = (versuche === 1)
+    ? 'Gleich beim 1. Versuch! 🎉'
+    : 'Das war Versuch Nr. ' + versuche + '.';
+  elBewertung.textContent = codeText + ' ' + versuchText;
+
+  // Beste Sterne-Zahl für die Level-Auswahl merken und speichern.
+  const bisher = bestSterne[aktuelleSchwierigkeit][aktuellesLevel] || 0;
+  bestSterne[aktuelleSchwierigkeit][aktuellesLevel] = Math.max(bisher, sterne);
+  speichereEinstellungen();
 
   // Haupttext (kurz, mit Ziel-Emoji) + Buttons.
   const istLetzteStufe = (aktuelleSchwierigkeit === 'schwer');
@@ -1439,16 +1568,19 @@ async function levelGeschafft() {
 }
 
 /**
- * "Nochmal versuchen": schließt das Overlay, setzt die Katze auf Start –
- * ABER die Warteschlange bleibt erhalten, damit man sein Programm gezielt
- * verbessern (kürzen) und mehr Sterne holen kann.
+ * "Nochmal versuchen": Das Level startet KOMPLETT frisch – Programm weg,
+ * Versuchszähler auf 0. Denn "Nochmal" heißt: noch einmal ganz neu
+ * probieren und diesmal mit weniger Versuchen (und kürzerem Code) schaffen.
  */
 function nochmalVersuchen() {
   versteckeOverlay(elOverlay);
+  befehlsQueue = [];        // altes Programm verschwindet
+  zeichneQueue();
+  versuche = 0;             // Versuchszähler frisch – volle 💡 wieder möglich
   loescheSpur();
   loescheMarker();
   setzeKatzeAufStart();
-  setzeMeldung('Nochmal – mit weniger Bausteinen! 💪', false);
+  setzeMeldung('Neuer Versuch! 💪', false);
 }
 
 /** Gemeinsamer Abschluss von Sieg und Fehlversuch: Sperren aufheben. */
@@ -1456,8 +1588,8 @@ function beendeAusführung() {
   laeuft = false;
   setzeEingabenAktiv(true);
   elQueue.classList.remove('queue--laeuft');
-  elQueue.querySelectorAll('.queue-block--aktiv')
-    .forEach((b) => b.classList.remove('queue-block--aktiv'));
+  elQueue.querySelectorAll('.queue-block--aktiv, .queue-block--bereich')
+    .forEach((b) => b.classList.remove('queue-block--aktiv', 'queue-block--bereich'));
 }
 
 /**
@@ -1488,6 +1620,7 @@ function naechstesLevel() {
   befehlsQueue = [];   // neues Level = leere Warteschlange
   zeichneQueue();
   ladeLevel(aktuellesLevel);
+  speichereEinstellungen();   // Fortschritt merken (weiter beim nächsten Mal)
 }
 
 
@@ -1501,7 +1634,7 @@ function naechstesLevel() {
 
 const SPEICHER_KEY = 'codekatze_einstellungen';
 
-/** Einstellungen aus dem Browser-Speicher laden (falls vorhanden). */
+/** Einstellungen UND Spielfortschritt aus dem Browser-Speicher laden. */
 function ladeEinstellungen() {
   try {
     const roh = localStorage.getItem(SPEICHER_KEY);
@@ -1516,18 +1649,41 @@ function ladeEinstellungen() {
     if (typeof daten.profiModus === 'boolean') {
       einstellungen.profiModus = daten.profiModus;
     }
+    if (typeof daten.tonAn === 'boolean') {
+      einstellungen.tonAn = daten.tonAn;
+    }
+    if (daten.tempo && TEMPO_DELAY[daten.tempo]) {
+      einstellungen.tempo = daten.tempo;
+    }
+    // Fortschritt: bei welchem Level ging es zuletzt weiter?
+    if (Number.isInteger(daten.level) &&
+        daten.level >= 0 && daten.level < aktuelleLevels().length) {
+      aktuellesLevel = daten.level;
+    }
+    // Beste Sterne pro Level (für die Level-Auswahl).
+    if (daten.bestSterne && typeof daten.bestSterne === 'object') {
+      for (const stufe of ['leicht', 'mittel', 'schwer']) {
+        if (daten.bestSterne[stufe]) bestSterne[stufe] = daten.bestSterne[stufe];
+      }
+    }
+    if (daten.tutorialGesehen === true) tutorialGesehen = true;
   } catch (e) {
     /* Speicher nicht verfügbar (z. B. privater Modus) – dann Standardwerte. */
   }
 }
 
-/** Einstellungen im Browser-Speicher sichern. */
+/** Einstellungen und Fortschritt im Browser-Speicher sichern. */
 function speichereEinstellungen() {
   try {
     localStorage.setItem(SPEICHER_KEY, JSON.stringify({
-      schwierigkeit: aktuelleSchwierigkeit,
-      spurAnzeigen:  einstellungen.spurAnzeigen,
-      profiModus:    einstellungen.profiModus,
+      schwierigkeit:   aktuelleSchwierigkeit,
+      level:           aktuellesLevel,
+      spurAnzeigen:    einstellungen.spurAnzeigen,
+      profiModus:      einstellungen.profiModus,
+      tonAn:           einstellungen.tonAn,
+      tempo:           einstellungen.tempo,
+      bestSterne:      bestSterne,
+      tutorialGesehen: tutorialGesehen,
     }));
   } catch (e) { /* still ignorieren */ }
 }
@@ -1542,6 +1698,11 @@ function aktualisiereEinstellungsUI() {
   // Schalter (Checkboxen) auf die aktuellen Werte setzen.
   elSpurToggle.checked  = einstellungen.spurAnzeigen;
   elProfiToggle.checked = einstellungen.profiModus;
+  elTonToggle.checked   = einstellungen.tonAn;
+  // Aktives Tempo hervorheben.
+  document.querySelectorAll('.tempo-btn').forEach((btn) => {
+    btn.classList.toggle('tempo-btn--aktiv', btn.dataset.tempo === einstellungen.tempo);
+  });
   // Profi-Baustein-Reihe passend zum Modus ein-/ausblenden.
   elProfiAktionen.hidden = !einstellungen.profiModus;
   // Farbpunkt der Level-Anzeige an die Schwierigkeit anpassen.
@@ -1578,7 +1739,7 @@ function setzeSchwierigkeit(stufe) {
   ladeLevel(aktuellesLevel);
 }
 
-/* ---- kleine Overlay-Helfer (für Gewinn- UND Einstellungs-Fenster) ---- */
+/* ---- kleine Overlay-Helfer (für alle Fenster) ---- */
 function zeigeOverlay(el) {
   el.classList.add('overlay--sichtbar');
   el.setAttribute('aria-hidden', 'false');
@@ -1586,6 +1747,62 @@ function zeigeOverlay(el) {
 function versteckeOverlay(el) {
   el.classList.remove('overlay--sichtbar');
   el.setAttribute('aria-hidden', 'true');
+}
+
+/* --------------------------------------------------------------------------
+   LEVEL-AUSWAHL  ·  öffnet sich beim Tippen auf die Level-Anzeige oben
+   --------------------------------------------------------------------------
+   Zeigt alle Level der aktuellen Stufe als Knöpfe. Unter gelösten Leveln
+   steht die beste erreichte Sterne-Zahl. Jedes Level ist frei wählbar –
+   so kann man gelöste Level erneut spielen und die Wertung verbessern.
+   -------------------------------------------------------------------------- */
+function oeffneLevelWahl() {
+  if (laeuft) return;             // nicht mitten im Lauf öffnen
+  zeichneLevelWahl();
+  zeigeOverlay(elLevelWahl);
+}
+
+function zeichneLevelWahl() {
+  elLevelWahlGrid.innerHTML = '';
+  const anzahl = aktuelleLevels().length;
+
+  for (let i = 0; i < anzahl; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'levelwahl-btn' +
+      (i === aktuellesLevel ? ' levelwahl-btn--aktiv' : '');
+
+    // Level-Nummer …
+    const nummer = document.createElement('span');
+    nummer.textContent = i + 1;
+    btn.appendChild(nummer);
+
+    // … und darunter die beste Sterne-Zahl (falls schon gelöst).
+    const beste = bestSterne[aktuelleSchwierigkeit][i] || 0;
+    const sterneEl = document.createElement('span');
+    sterneEl.className = 'levelwahl-btn__sterne';
+    sterneEl.textContent = beste > 0 ? '★'.repeat(beste) : '·';
+    btn.appendChild(sterneEl);
+
+    btn.addEventListener('click', () => {
+      aktuellesLevel = i;
+      befehlsQueue = [];          // gewähltes Level startet frisch
+      zeichneQueue();
+      versteckeOverlay(elLevelWahl);
+      ladeLevel(i);
+      speichereEinstellungen();   // Fortschritt merken
+    });
+
+    elLevelWahlGrid.appendChild(btn);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   TUTORIAL  ·  wird nur beim allerersten Öffnen des Spiels gezeigt
+   -------------------------------------------------------------------------- */
+function zeigeTutorialFallsNoetig() {
+  if (tutorialGesehen) return;
+  zeigeOverlay(elTutorial);
 }
 
 
@@ -1649,6 +1866,36 @@ function verbindeButtons() {
   elProfiToggle.addEventListener('change', () => {
     setzeProfiModus(elProfiToggle.checked);
   });
+
+  // Ton & Vibration.
+  elTonToggle.addEventListener('change', () => {
+    einstellungen.tonAn = elTonToggle.checked;
+    speichereEinstellungen();
+    if (einstellungen.tonAn) spieleTon('schritt');   // kurzes Hörbeispiel
+  });
+
+  // Tempo-Auswahl (🐢 / 🐾 / 🐇).
+  document.querySelectorAll('.tempo-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      einstellungen.tempo = btn.dataset.tempo;
+      aktualisiereEinstellungsUI();
+      speichereEinstellungen();
+    });
+  });
+
+  // Level-Anzeige oben öffnet die Level-Auswahl.
+  elLevel.addEventListener('click', oeffneLevelWahl);
+  elLevelWahlClose.addEventListener('click', () => versteckeOverlay(elLevelWahl));
+  elLevelWahl.addEventListener('click', (e) => {
+    if (e.target === elLevelWahl) versteckeOverlay(elLevelWahl);
+  });
+
+  // Tutorial-Button ("Los geht's!") schließt das Tutorial dauerhaft.
+  elTutorialBtn.addEventListener('click', () => {
+    tutorialGesehen = true;
+    speichereEinstellungen();
+    versteckeOverlay(elTutorial);
+  });
 }
 
 /**
@@ -1663,8 +1910,9 @@ function beobachteGroessenwechsel() {
 }
 
 // --- Spiel initialisieren ---
-ladeEinstellungen();
+ladeEinstellungen();          // Einstellungen + Fortschritt wiederherstellen
 verbindeButtons();
 aktualisiereEinstellungsUI();
 beobachteGroessenwechsel();
-ladeLevel(aktuellesLevel);
+ladeLevel(aktuellesLevel);    // beim gemerkten Level weitermachen
+zeigeTutorialFallsNoetig();   // kleines Tutorial nur beim allerersten Start

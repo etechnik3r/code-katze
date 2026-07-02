@@ -59,6 +59,13 @@ auf Lösbarkeit geprüft. Nach dem letzten Level einer Stufe geht es
 bleibt es bei „schwer" – es wird nie selbstständig auf eine leichtere Stufe
 zurückgeschaltet.
 
+Der **Fortschritt wird gespeichert** (localStorage): Beim nächsten Öffnen
+geht es genau da weiter, wo man aufgehört hat. Ein Tipp auf die
+**Level-Anzeige oben links** („Leicht · 3/20") öffnet die **Level-Auswahl**:
+alle Level der Stufe als Knöpfe, gelöste zeigen ihre beste Sterne-Zahl.
+Beim allerersten Start erklärt ein **Mini-Tutorial** in drei Schritten,
+wie das Spiel funktioniert.
+
 ## Bewertung (zwei Reihen)
 
 Nach jedem gelösten Level gibt es zwei Bewertungen mit je **1–3 Symbolen**:
@@ -71,8 +78,9 @@ Nach jedem gelösten Level gibt es zwei Bewertungen mit je **1–3 Symbolen**:
   die volle Punktzahl; je mehr Versuche, desto weniger. Das motiviert, erst
   zu überlegen statt nur auszuprobieren.
 
-Ist noch Luft nach oben, erscheint ein **„Nochmal"**-Button, der das Programm
-erhält, damit man es gezielt verbessern kann.
+Ist noch Luft nach oben, erscheint ein **„Nochmal"**-Button: Das Level
+startet dann **komplett frisch** (Programm weg, Versuchszähler auf 0), damit
+man es wirklich noch einmal neu und diesmal gleich richtig probiert.
 
 ## Sichtbares Feedback
 
@@ -99,9 +107,13 @@ ganze „Programm" auf einen Blick sichtbar bleibt.
 - **Schwierigkeit** in drei Farben für verschiedene Altersstufen:
   Leicht (grün, ab ~5 J.), Mittel (orange, ab ~7 J.), Schwer (rot, ab ~9 J.).
 - **Gelaufene Spur** ein-/ausblenden.
+- **Ton & Vibration** an/aus – kurze Geräusche für Schritt, Drehung,
+  Zusammenstoß und Sieg (per WebAudio erzeugt, keine Audiodateien nötig).
+- **Tempo**: 🐢 langsam · 🐾 normal · 🐇 schnell.
+- **Profi-Modus** mit Schleifen und Bedingungen.
 - **Symbol-Legende**, die alle vorkommenden Symbole erklärt.
 
-Die gewählten Einstellungen werden im Browser gespeichert (localStorage).
+Alle Einstellungen werden im Browser gespeichert (localStorage).
 
 ## Die Katze
 
