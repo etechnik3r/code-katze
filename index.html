@@ -56,7 +56,8 @@
     ========================================================================
   -->
   <section class="status">
-    <span id="levelAnzeige" class="status__level">Level 1</span>
+    <!-- Die Level-Anzeige ist antippbar und öffnet die Level-Auswahl. -->
+    <button id="levelAnzeige" class="status__level" type="button">Leicht · 1/20</button>
     <span id="meldung" class="status__meldung">Tippe Befehle, dann ▶︎</span>
   </section>
 
@@ -171,11 +172,17 @@
       <h2 class="overlay__titel">Geschafft!</h2>
       <p id="overlayText" class="overlay__text">🐟 gefunden!</p>
 
-      <!-- Zwei Bewertungs-Reihen: ⭐ = cleverer Code, 💡 = gleich beim 1. Versuch -->
-      <div id="sterne" class="sterne" aria-label="Cleverer Code"></div>
-      <div id="knobel" class="sterne" aria-label="Gleich beim ersten Versuch"></div>
+      <!-- Zwei beschriftete Bewertungs-Reihen (einfache Wörter für Kinder) -->
+      <div class="bewertung-reihe">
+        <span class="bewertung-reihe__label">Kurzer Code</span>
+        <div id="sterne" class="sterne" aria-label="Kurzer Code"></div>
+      </div>
+      <div class="bewertung-reihe">
+        <span class="bewertung-reihe__label">Wenig Versuche</span>
+        <div id="knobel" class="sterne" aria-label="Wenig Versuche"></div>
+      </div>
 
-      <!-- Kurze Zahlen-Zeile: 🧩 Bausteine · 🎯 Bestwert · Versuche -->
+      <!-- Erklärte Zahlen-Zeilen (per JS gefüllt) -->
       <p id="bewertungText" class="bewertung-text"></p>
 
       <div class="overlay__buttons">
@@ -229,6 +236,31 @@
         </label>
       </div>
 
+      <!-- Ton & Tempo -->
+      <div class="setting-gruppe">
+        <div class="setting-titel">Ton &amp; Tempo</div>
+        <label class="schalter">
+          <span class="schalter__text">🔊 Ton &amp; Vibration</span>
+          <input type="checkbox" id="tonToggle" />
+          <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
+        </label>
+        <!-- Wie schnell führt die Katze die Befehle aus? -->
+        <div class="tempo-wahl">
+          <button class="tempo-btn" data-tempo="langsam" type="button">
+            <span class="tempo-btn__icon">🐢</span>
+            <span class="tempo-btn__text">Langsam</span>
+          </button>
+          <button class="tempo-btn" data-tempo="normal" type="button">
+            <span class="tempo-btn__icon">🐾</span>
+            <span class="tempo-btn__text">Normal</span>
+          </button>
+          <button class="tempo-btn" data-tempo="schnell" type="button">
+            <span class="tempo-btn__icon">🐇</span>
+            <span class="tempo-btn__text">Schnell</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Spielmodus: Profi-Modus mit Schleifen & Logik -->
       <div class="setting-gruppe">
         <div class="setting-titel">Spielmodus</div>
@@ -269,6 +301,41 @@
       </div>
 
       <button id="settingsFertig" class="steuer-btn steuer-btn--play" type="button">Fertig</button>
+    </div>
+  </div>
+
+  <!--
+    ========================================================================
+    9. TUTORIAL-OVERLAY  ·  wird nur beim allerersten Start gezeigt
+    ========================================================================
+  -->
+  <div id="tutorialOverlay" class="overlay" aria-hidden="true">
+    <div class="overlay__box">
+      <div class="overlay__emoji">🐱</div>
+      <h2 class="overlay__titel">Hallo!</h2>
+      <ol class="tutorial-liste">
+        <li><span class="tutorial-liste__icon">1️⃣</span> Tippe Befehle: ⬆️ ↰ ↱</li>
+        <li><span class="tutorial-liste__icon">2️⃣</span> Drücke ▶ Start</li>
+        <li><span class="tutorial-liste__icon">3️⃣</span> Bring die Katze zum Ziel! 🐟</li>
+      </ol>
+      <button id="tutorialBtn" class="steuer-btn steuer-btn--play" type="button">
+        Los geht’s! 🐾
+      </button>
+    </div>
+  </div>
+
+  <!--
+    ========================================================================
+    10. LEVEL-AUSWAHL  ·  öffnet sich beim Tippen auf die Level-Anzeige
+    ========================================================================
+    Das Raster mit den Level-Knöpfen wird per JavaScript gefüllt; gelöste
+    Level zeigen ihre beste Sterne-Zahl.
+  -->
+  <div id="levelWahlOverlay" class="overlay" aria-hidden="true">
+    <div class="overlay__box overlay__box--settings">
+      <button id="levelWahlClose" class="modal-close" type="button" aria-label="Level-Auswahl schließen">✕</button>
+      <h2 class="overlay__titel">🗺️ Level wählen</h2>
+      <div id="levelWahlGrid" class="levelwahl"></div>
     </div>
   </div>
 

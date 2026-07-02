@@ -127,14 +127,24 @@ body {
 }
 
 .status__level {
+  /* Ist ein Button (öffnet die Level-Auswahl) – Standard-Optik entfernen */
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+
   font-weight: 800;
   font-size: clamp(1rem, 4vw, 1.2rem);
   color: var(--farbe-akzent-d);
   white-space: nowrap;
   /* kleiner Farbpunkt links zeigt die Schwierigkeit an (per JS gesetzt) */
-  padding-left: 18px;
+  padding: 4px 0 4px 18px;
   position: relative;
+  /* gepunktete Linie als dezenter Hinweis: "hier kann man tippen" */
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
 }
+.status__level:active { transform: scale(0.95); }
 .status__level::before {
   content: "";
   position: absolute;
@@ -187,7 +197,7 @@ body {
      das Raster nie über die Buttons darunter hinausragen – egal wie hoch
      das Gerät ist. (Auf schmalen Geräten begrenzt zusätzlich die Breite.) */
   position: relative;                 /* Bezug für Katze & Spur-Overlay */
-  width: min(86vw, 420px);
+  width: min(94vw, 520px);
   max-width: 100%;
   max-height: 100%;
   aspect-ratio: 1 / 1;
@@ -289,18 +299,19 @@ body {
   will-change: transform;
 }
 
-/* Schweif (Schwanz) hinten unten – signalisiert die "Rückseite" */
+/* Schweif (Schwanz) hinten unten – geschwungen wie ein Komma */
 .katze__schweif {
   position: absolute;
-  left: 50%;
-  bottom: -4%;
-  width: 13%;
-  height: 42%;
-  margin-left: -6.5%;
+  left: 52%;
+  bottom: -5%;
+  width: 15%;
+  height: 46%;
+  margin-left: -7.5%;
   background: var(--katze-dunkel);
-  border-radius: 8px;
+  /* asymmetrische Rundung = geschwungene Schweif-Form */
+  border-radius: 50% 50% 60% 20%;
   transform-origin: top center;
-  transform: rotate(20deg);
+  transform: rotate(26deg);
 }
 
 /* Körper (ovale Grundform) */
@@ -311,7 +322,18 @@ body {
   width: 62%;
   height: 55%;
   background: var(--katze-koerper);
-  border-radius: 46% 46% 40% 40%;
+  border-radius: 46% 46% 42% 42%;
+}
+/* Heller Bauchfleck macht die Figur freundlicher */
+.katze__koerper::after {
+  content: "";
+  position: absolute;
+  left: 28%;
+  bottom: 6%;
+  width: 44%;
+  height: 52%;
+  background: #fbd9ae;
+  border-radius: 50%;
 }
 
 /* Ohren (Dreiecke) – sitzen vorne oben */
@@ -326,6 +348,17 @@ body {
 }
 .katze__ohr--l { left: 22%;  transform: rotate(-12deg); }
 .katze__ohr--r { right: 22%; transform: rotate(12deg); }
+/* Rosa Innenohr (kleineres Dreieck im Ohr) */
+.katze__ohr::after {
+  content: "";
+  position: absolute;
+  left: 25%;
+  top: 34%;
+  width: 50%;
+  height: 60%;
+  background: var(--katze-nase);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
 
 /* Kopf (Kreis) – liegt über den Ohransätzen */
 .katze__kopf {
@@ -343,13 +376,24 @@ body {
 .katze__auge {
   position: absolute;
   top: 26%;
-  width: 15%;
-  height: 20%;
+  width: 16%;
+  height: 21%;
   background: var(--farbe-text);
   border-radius: 50%;
 }
-.katze__auge--l { left: 24%; }
-.katze__auge--r { right: 24%; }
+.katze__auge--l { left: 23%; }
+.katze__auge--r { right: 23%; }
+/* Kleiner weißer Glanzpunkt macht die Augen lebendig */
+.katze__auge::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  top: 14%;
+  width: 38%;
+  height: 38%;
+  background: #fff;
+  border-radius: 50%;
+}
 
 /* Nase – kleines Dreieck, dessen Spitze GENAU nach vorne zeigt.
    Das ist der wichtigste Richtungs-Hinweis für das Kind. */
@@ -421,20 +465,26 @@ body {
   border-color: var(--farbe-akzent);
 }
 
-/* --- Profi-Bausteine (zweite Aktionsreihe) --- */
+/* --- Profi-Bausteine: EINE seitlich wischbare Chip-Leiste ---
+   So bleibt das Spielfeld groß, egal wie viele Bausteine es gibt. */
 .aktionen--profi {
-  flex-wrap: wrap;               /* passen sich der Bildschirmbreite an */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   gap: 6px;
   padding-top: 0;
+  padding-bottom: 4px;           /* Platz für evtl. Scroll-Indikator */
 }
 .aktionen--profi .aktion-btn {
-  flex: 1 1 30%;                 /* ca. drei pro Reihe, brechen bei Bedarf um */
+  flex: 0 0 auto;                /* feste Chip-Breite, nicht stauchen */
   min-height: 44px;
-  flex-direction: row;          /* Icon neben Text = flacher */
-  gap: 5px;
+  flex-direction: row;           /* Icon neben Text = flacher Chip */
+  gap: 6px;
+  padding: 4px 12px;
+  white-space: nowrap;
 }
-.aktionen--profi .aktion-btn__icon { font-size: 1.35rem; }
-.aktionen--profi .aktion-btn__text { font-size: clamp(0.8rem, 3.3vw, 0.95rem); }
+.aktionen--profi .aktion-btn__icon { font-size: 1.3rem; }
+.aktionen--profi .aktion-btn__text { font-size: clamp(0.85rem, 3.4vw, 1rem); }
 /* Logikblöcke (Schleifen/Bedingungen) in einer eigenen Farbe (Violett) */
 .aktion-btn--logik {
   border-color: #c9b8f0;
@@ -530,16 +580,18 @@ body {
 .queue-block::after {
   content: "×";
   position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 18px;
-  height: 18px;
-  font-size: 0.8rem;
-  line-height: 18px;
+  top: -9px;
+  right: -9px;
+  width: 24px;
+  height: 24px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 24px;
   text-align: center;
   color: #fff;
   background: var(--farbe-akzent);
   border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
 /* Der gerade ausgeführte Befehl wird kräftig hervorgehoben */
@@ -548,6 +600,18 @@ body {
   border-color: var(--farbe-akzent-d);
   transform: scale(1.12);
   box-shadow: 0 0 0 3px rgba(255, 138, 92, 0.35);
+}
+
+/* Läuft gerade eine Schleife, wird ihr GESAMTER Klammer-Bereich sanft
+   violett markiert und pulsiert – so sieht das Kind, was wiederholt wird. */
+.queue-block--bereich {
+  background: #e9defc;
+  border-color: #8a63d2;
+  animation: bereichPuls 0.9s ease infinite;
+}
+@keyframes bereichPuls {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(138, 99, 210, 0.0); }
+  50%      { box-shadow: 0 0 0 4px rgba(138, 99, 210, 0.3); }
 }
 
 /* Während der Ausführung soll das Lösch-Kreuz nicht ablenken */
@@ -665,12 +729,29 @@ body {
   font-weight: 600;
 }
 
+/* Beschriftete Bewertungs-Reihe: einfaches Wort links, Symbole rechts */
+.bewertung-reihe {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 0;
+  padding: 4px 10px;
+  background: var(--farbe-bg);
+  border-radius: 12px;
+}
+.bewertung-reihe__label {
+  font-size: clamp(0.95rem, 4vw, 1.1rem);
+  font-weight: 700;
+  text-align: left;
+}
+
 /* Sterne-/Bewertungs-Symbole (zwei Reihen: ⭐ Code, 💡 erster Versuch) */
 .sterne {
-  font-size: 2.2rem;
+  font-size: 1.9rem;
   line-height: 1;
-  letter-spacing: 6px;
-  margin: 2px 0;
+  letter-spacing: 4px;
+  white-space: nowrap;
 }
 .sterne__stern {
   display: inline-block;
@@ -829,6 +910,85 @@ body {
 }
 .schalter input:checked + .schalter__track .schalter__knopf {
   transform: translateX(22px);
+}
+
+/* --- Tempo-Auswahl (🐢 / 🐾 / 🐇) --- */
+.tempo-wahl {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tempo-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  background: var(--farbe-bg);
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--farbe-text);
+  font-family: inherit;
+}
+.tempo-btn__icon { font-size: 1.4rem; line-height: 1; }
+.tempo-btn__text { font-size: 0.8rem; font-weight: 700; }
+.tempo-btn--aktiv {
+  border-color: var(--farbe-play);
+  background: #eafcef;
+}
+
+/* --- Tutorial (nur beim ersten Start) --- */
+.tutorial-liste {
+  list-style: none;
+  text-align: left;
+  margin: 8px 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tutorial-liste li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+  font-weight: 700;
+}
+.tutorial-liste__icon { font-size: 1.4rem; }
+
+/* --- Level-Auswahl (Raster aus Level-Knöpfen) --- */
+.levelwahl {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.levelwahl-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  background: var(--farbe-bg);
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--farbe-text);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.levelwahl-btn__sterne {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  color: #ffc93c;
+}
+/* Das gerade aktive Level bekommt einen farbigen Rahmen */
+.levelwahl-btn--aktiv {
+  border-color: var(--farbe-akzent);
+  background: #fff1ea;
 }
 
 /* --- Legende (Symbol-Erklärung) --- */
