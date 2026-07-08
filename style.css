@@ -77,7 +77,9 @@ body {
 .kopf {
   position: relative;         /* damit das Zahnrad absolut sitzen kann */
   text-align: center;
-  padding: 10px 12px 6px;
+  /* rechts/links Platz für das Zahnrad reservieren, damit der Schriftzug
+     auf sehr schmalen Geräten (320px) nicht darunter gerät */
+  padding: 10px 56px 6px;
 }
 
 .kopf__studio {
@@ -86,6 +88,9 @@ body {
   text-transform: uppercase;
   color: var(--farbe-akzent-d);
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kopf__titel {
@@ -237,6 +242,11 @@ body {
   z-index: 3;
   pointer-events: none;       /* darf keine Tipps abfangen */
 }
+/* Zweite SVG-Ebene NUR für die Dreh-Symbole: liegt ÜBER der Katze,
+   damit Drehungen auch auf dem Feld der Katze sichtbar bleiben. */
+.spur--dreh {
+  z-index: 6;
+}
 .spur__linie {
   fill: none;
   stroke: var(--farbe-akzent);
@@ -278,6 +288,35 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Nach einem Moment schrumpft der Marker in die Ecke des Feldes, damit das
+   Hindernis darunter (Hund/Pfütze) wieder zu sehen ist. */
+.marker--klein {
+  animation: none;
+  transform: translate(28%, -28%) scale(0.5);
+  transition: transform 0.35s ease;
+}
+
+/* --------------------------------------------------------------------------
+   FEIER-TEILCHEN (🎉✨💖) am Zielfeld, BEVOR das Gewinn-Overlay erscheint –
+   so ist der Moment "Katze erreicht das Ziel" wirklich sichtbar.
+   -------------------------------------------------------------------------- */
+.feier {
+  position: absolute;
+  z-index: 8;
+  font-size: clamp(16px, 6vw, 30px);
+  pointer-events: none;
+  animation: feierFlug 1.3s ease-out both;
+}
+@keyframes feierFlug {
+  0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  15%  { opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--fx, 0px)),
+                         calc(-50% + var(--fy, -40px))) scale(1.1);
+    opacity: 0;
+  }
+}
+
 /* --------------------------------------------------------------------------
    DIE KATZE  (komplett aus CSS-Formen; klare Blickrichtung nach vorne)
    --------------------------------------------------------------------------
@@ -299,19 +338,20 @@ body {
   will-change: transform;
 }
 
-/* Schweif (Schwanz) hinten unten – geschwungen wie ein Komma */
+/* Schweif (Schwanz) hinten – ragt sichtbar seitlich hinter dem Körper
+   hervor (vorher verschwand er fast komplett dahinter und die Katze sah
+   eher wie ein Hamster aus). */
 .katze__schweif {
   position: absolute;
-  left: 52%;
-  bottom: -5%;
-  width: 15%;
-  height: 46%;
-  margin-left: -7.5%;
+  left: 74%;
+  bottom: -2%;
+  width: 16%;
+  height: 52%;
   background: var(--katze-dunkel);
   /* asymmetrische Rundung = geschwungene Schweif-Form */
-  border-radius: 50% 50% 60% 20%;
+  border-radius: 60% 40% 70% 30%;
   transform-origin: top center;
-  transform: rotate(26deg);
+  transform: rotate(38deg);
 }
 
 /* Körper (ovale Grundform) */
@@ -336,18 +376,19 @@ body {
   border-radius: 50%;
 }
 
-/* Ohren (Dreiecke) – sitzen vorne oben */
+/* Ohren (Dreiecke) – sitzen vorne oben; bewusst groß und spitz, damit die
+   Figur klar als Katze lesbar ist */
 .katze__ohr {
   position: absolute;
-  top: 3%;
-  width: 22%;
-  height: 24%;
+  top: 0%;
+  width: 26%;
+  height: 30%;
   background: var(--katze-koerper);
   /* clip-path erzeugt ein Dreieck; % ist hier erlaubt */
   clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
 }
-.katze__ohr--l { left: 22%;  transform: rotate(-12deg); }
-.katze__ohr--r { right: 22%; transform: rotate(12deg); }
+.katze__ohr--l { left: 19%;  transform: rotate(-16deg); }
+.katze__ohr--r { right: 19%; transform: rotate(16deg); }
 /* Rosa Innenohr (kleineres Dreieck im Ohr) */
 .katze__ohr::after {
   content: "";
@@ -465,6 +506,32 @@ body {
   border-color: var(--farbe-akzent);
 }
 
+/* Wrapper um die Profi-Leiste: zeigt rechts einen Farbverlauf + Pfeil,
+   solange dort noch weitere Bausteine "versteckt" sind (Wisch-Hinweis –
+   auf Touch-Geräten gibt es sonst keinerlei Scroll-Anzeige). */
+.profi-wrap {
+  position: relative;
+}
+.profi-wrap[hidden] { display: none; }
+.profi-wrap::after {
+  content: "›";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 4px;
+  width: 44px;
+  display: none;                 /* nur sichtbar mit .profi-wrap--mehr */
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #8a63d2;
+  background: linear-gradient(to right, transparent, var(--farbe-bg) 70%);
+  pointer-events: none;          /* nur Optik – Wischen geht durch */
+}
+.profi-wrap--mehr::after { display: flex; }
+
 /* --- Profi-Bausteine: EINE seitlich wischbare Chip-Leiste ---
    So bleibt das Spielfeld groß, egal wie viele Bausteine es gibt. */
 .aktionen--profi {
@@ -576,9 +643,10 @@ body {
   color: #6a44b8;
 }
 
-/* Kleines Lösch-Kreuz oben rechts als Hinweis "antippen = entfernen" */
-.queue-block::after {
-  content: "×";
+/* Kleines Lösch-Kreuz oben rechts – ein ECHTES Element (kein ::after),
+   damit NUR das Kreuz löscht. Ein Tipp auf den Block selbst setzt
+   stattdessen die Einfügemarke (siehe .queue-caret). */
+.queue-block__x {
   position: absolute;
   top: -9px;
   right: -9px;
@@ -592,6 +660,21 @@ body {
   background: var(--farbe-akzent);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+
+/* Einfügemarke: Neue Befehle landen VOR dem Block hinter dieser Marke. */
+.queue-caret {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 50px;
+  border-radius: 3px;
+  background: #8a63d2;
+  animation: caretBlinken 0.9s ease infinite;
+}
+@keyframes caretBlinken {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
 }
 
 /* Der gerade ausgeführte Befehl wird kräftig hervorgehoben */
@@ -614,8 +697,9 @@ body {
   50%      { box-shadow: 0 0 0 4px rgba(138, 99, 210, 0.3); }
 }
 
-/* Während der Ausführung soll das Lösch-Kreuz nicht ablenken */
-.queue--laeuft .queue-block::after { display: none; }
+/* Während der Ausführung sollen Lösch-Kreuze und Marke nicht ablenken */
+.queue--laeuft .queue-block__x,
+.queue--laeuft .queue-caret { display: none; }
 
 /* ==========================================================================
    6. PLAY- / RESET-STEUERUNG
@@ -643,10 +727,12 @@ body {
 
 .steuer-btn:active { transform: scale(0.97); }
 
-/* Reset-Button etwas kleiner/dezenter als der Start-Button */
+/* Reset-Button etwas kleiner/dezenter als der Start-Button
+   (drei Knöpfe unten: Löschen · 1 Schritt · Start) */
 .steuer-btn--reset {
-  flex: 0 0 38%;
+  flex: 0 0 28%;
   background: var(--farbe-akzent);
+  font-size: clamp(0.95rem, 3.8vw, 1.15rem);
 }
 .steuer-btn--reset:active { background: var(--farbe-akzent-d); }
 
@@ -654,6 +740,29 @@ body {
   background: var(--farbe-play);
 }
 .steuer-btn--play:active { background: var(--farbe-play-d); }
+
+/* Während des Laufs wird der Start-Knopf zum roten Stopp-Knopf */
+.steuer-btn--stopp {
+  background: var(--schwer);
+}
+.steuer-btn--stopp:active { background: #c22f2f; }
+
+/* 🐾 Einzelschritt-Knopf – dezenter als Start, aber gut erreichbar */
+.steuer-btn--step {
+  flex: 0 0 30%;
+  background: #7d6bd9;
+  font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+}
+.steuer-btn--step:active { background: #6a56c7; }
+
+/* 📲 Installieren-Button in den Einstellungen */
+.steuer-btn--install {
+  width: 100%;
+  background: #7d6bd9;
+  font-size: 1.05rem;
+  min-height: 48px;
+}
+.steuer-btn--install:active { background: #6a56c7; }
 
 /* Deaktivierte Buttons (z. B. während die Katze läuft) */
 .steuer-btn:disabled,
@@ -789,6 +898,10 @@ body {
 }
 .overlay__box .steuer-btn {
   width: 100%;
+}
+/* Im Overlay teilen sich beide Knöpfe den Platz gleichmäßig */
+.overlay__buttons .steuer-btn {
+  flex: 1;
 }
 
 /* Schließen-Kreuz oben rechts in Modalen */
@@ -957,6 +1070,29 @@ body {
 }
 .tutorial-liste__icon { font-size: 1.4rem; }
 
+/* --- Stufen-Tabs in der Level-Auswahl (Leicht/Mittel/Schwer) --- */
+.levelwahl-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.levelwahl-tab {
+  flex: 1;
+  padding: 8px 4px;
+  background: var(--farbe-bg);
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--tab-farbe, var(--farbe-text));
+}
+.levelwahl-tab--aktiv {
+  border-color: var(--tab-farbe, var(--farbe-akzent));
+  background: #fff;
+}
+
 /* --- Level-Auswahl (Raster aus Level-Knöpfen) --- */
 .levelwahl {
   display: grid;
@@ -1009,6 +1145,99 @@ body {
   width: 34px;
   text-align: center;
   font-size: 1.25rem;
+}
+
+/* ==========================================================================
+   COACH-SPRECHBLASE  ·  führt beim allerersten Spiel durch das erste Level
+   ========================================================================== */
+.coach {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;                     /* über der Steuerleiste */
+  transform: translateX(-50%);
+  z-index: 40;
+  max-width: min(88vw, 420px);
+  padding: 12px 18px;
+  background: var(--farbe-text);
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 4vw, 1.1rem);
+  border-radius: 16px;
+  box-shadow: var(--schatten);
+  animation: coachWippen 1.6s ease infinite;
+  pointer-events: none;             /* nur Hinweis, fängt keine Tipps ab */
+}
+.coach[hidden] { display: none; }
+@keyframes coachWippen {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* Das Element, auf das der Coach zeigt, pulsiert sanft */
+.coach-puls {
+  animation: coachPuls 1.2s ease infinite;
+  border-radius: 14px;
+}
+@keyframes coachPuls {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(62, 201, 106, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(62, 201, 106, 0.45); }
+}
+
+/* ==========================================================================
+   HOCHFORMAT-HINWEIS  ·  bei quer gehaltenen Handys (zu flach fürs Layout)
+   ==========================================================================
+   Das Layout ist bewusst fürs Hochformat gebaut. Statt eines zerquetschten
+   Spielfelds gibt es im flachen Querformat eine freundliche Bitte, das
+   Gerät zu drehen. Auf hohen Fenstern (Desktop) erscheint nichts.
+   -------------------------------------------------------------------------- */
+.quermodus {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  background: var(--farbe-bg);
+  text-align: center;
+  padding: 20px;
+}
+.quermodus__emoji {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+.quermodus__inhalt p {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+@media (orientation: landscape) and (max-height: 480px) {
+  .quermodus { display: flex; }
+}
+
+/* ==========================================================================
+   GRÖSSERE BILDSCHIRME (Desktop/Tablet): Inhalt als zentrierte Spalte,
+   statt Buttons über die volle Breite zu strecken
+   ========================================================================== */
+@media (min-width: 700px) {
+  .kopf,
+  .status,
+  .spielfeld-rahmen,
+  .aktionen,
+  .profi-wrap,
+  .queue-bereich,
+  .steuerung {
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Sehr schmale Geräte (~320px): Schrift der drei Fuß-Knöpfe verkleinern,
+   damit "Löschen" / "1 Schritt" / "Start" nicht umbrechen */
+@media (max-width: 350px) {
+  .steuer-btn        { font-size: 0.95rem; }
+  .steuer-btn--reset,
+  .steuer-btn--step  { font-size: 0.8rem; }
 }
 
 /* ==========================================================================

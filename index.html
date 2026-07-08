@@ -21,15 +21,24 @@
     Der viewport-Tag ist für "Mobile First" zentral:
     Er sorgt dafür, dass die Seite auf Smartphones in der echten Gerätebreite
     dargestellt wird (kein heraus-/hineingezoomtes Mini-Desktop-Layout).
-    'user-scalable=no' verhindert versehentliches Zoomen beim schnellen Tippen.
+    Zoomen bleibt bewusst ERLAUBT (Barrierefreiheit – z. B. für Kinder oder
+    Eltern mit Sehschwäche).
   -->
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Farbe der Browser-/Statusleiste auf Mobilgeräten -->
   <meta name="theme-color" content="#fef6e4" />
 
   <title>JONFIE STUDIOS präsentiert: Code-Katze</title>
+
+  <!-- PWA: macht das Spiel installierbar ("Zum Home-Bildschirm") und
+       zusammen mit sw.js offline spielbar. -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   <!-- Externes Stylesheet (saubere Trennung von Struktur und Design) -->
   <link rel="stylesheet" href="style.css" />
@@ -58,7 +67,8 @@
   <section class="status">
     <!-- Die Level-Anzeige ist antippbar und öffnet die Level-Auswahl. -->
     <button id="levelAnzeige" class="status__level" type="button">Leicht · 1/20</button>
-    <span id="meldung" class="status__meldung">Tippe Befehle, dann ▶︎</span>
+    <!-- aria-live: Vorlese-Hilfen (Screenreader) sagen Meldungen mit an. -->
+    <span id="meldung" class="status__meldung" aria-live="polite">Tippe Befehle, dann ▶︎</span>
   </section>
 
   <!--
@@ -101,6 +111,7 @@
     Schleifen und Logikblöcke arbeiten mit Klammern: ein Öffner-Baustein "("
     und der Schließer ")". Alles zwischen den Klammern gehört zusammen.
   -->
+  <div id="profiWrap" class="profi-wrap" hidden>
   <section id="profiAktionen" class="aktionen aktionen--profi" aria-label="Profi-Bausteine" hidden>
     <button class="aktion-btn aktion-btn--logik" data-aktion="loop2" type="button">
       <span class="aktion-btn__icon">🔁</span>
@@ -131,13 +142,15 @@
       <span class="aktion-btn__text">Ende )</span>
     </button>
   </section>
+  </div><!-- /profi-wrap (zeigt rechts einen Wisch-Hinweis, wenn mehr Chips da sind) -->
 
   <!--
     ========================================================================
     5. BEFEHLS-WARTESCHLANGE (COMMAND QUEUE)
     ========================================================================
     Der Bereich bricht bei Bedarf mehrzeilig um, damit das ganze "Programm"
-    auf einen Blick sichtbar ist. Ein Tipp auf einen Block löscht ihn wieder.
+    auf einen Blick sichtbar ist. Das ×-Kreuz löscht einen Block; ein Tipp
+    auf den Block selbst setzt eine Einfügemarke (neue Befehle landen davor).
   -->
   <section class="queue-bereich" aria-label="Befehls-Warteschlange">
     <div class="queue-bereich__label">Dein Programm:</div>
@@ -156,10 +169,34 @@
     <button id="resetBtn" class="steuer-btn steuer-btn--reset" type="button">
       🧹 Löschen
     </button>
+    <!-- Einzelschritt-Modus: führt EINEN Befehl aus und pausiert dann –
+         ein kleiner "Debugger" zum Nachvollziehen des Programms. -->
+    <button id="stepBtn" class="steuer-btn steuer-btn--step" type="button">
+      🐾 1 Schritt
+    </button>
+    <!-- Wird während des Laufs zum ⏹-Stopp-Knopf (game.js). -->
     <button id="playBtn" class="steuer-btn steuer-btn--play" type="button">
       ▶︎ Start
     </button>
   </footer>
+
+  <!--
+    COACH-SPRECHBLASE  ·  führt beim allerersten Spiel interaktiv durch
+    das erste Level ("Tippe Befehle" -> "Drücke Start"). Per JS gesteuert.
+  -->
+  <div id="coach" class="coach" hidden>Tippe ein paar Befehle: ⬆️ ↰ ↱</div>
+
+  <!--
+    HOCHFORMAT-HINWEIS  ·  wird per CSS (Media Query) nur eingeblendet,
+    wenn das Gerät quer gehalten wird und zu flach für das Layout ist.
+  -->
+  <div class="quermodus" aria-hidden="true">
+    <div class="quermodus__inhalt">
+      <div class="quermodus__emoji">📱🔄</div>
+      <p>Bitte halte dein Gerät <strong>hochkant</strong> –<br />
+         dann passt alles aufs Bild! 🐱</p>
+    </div>
+  </div>
 
   <!--
     ========================================================================
@@ -223,7 +260,8 @@
             <span class="schwer-btn__alter">ab ~9 Jahren</span>
           </button>
         </div>
-        <p class="setting-hinweis">Ein Wechsel startet die neue Stufe bei Level 1.</p>
+        <p class="setting-hinweis">Jede Stufe merkt sich, wo du warst – ein Wechsel
+          kostet keinen Fortschritt.</p>
       </div>
 
       <!-- Anzeige-Optionen -->
@@ -273,6 +311,21 @@
           und Bedingungen („wenn frei", „wenn Wand") frei. Ein Wechsel leert das Programm.</p>
       </div>
 
+      <!-- Als App installieren (PWA). Der Button erscheint nur, wenn der
+           Browser die Installation anbietet; auf iPhone/iPad wird
+           stattdessen eine kurze Anleitung gezeigt. -->
+      <div class="setting-gruppe">
+        <div class="setting-titel">Als App</div>
+        <button id="installBtn" class="steuer-btn steuer-btn--install" type="button" hidden>
+          📲 Auf dem Gerät installieren
+        </button>
+        <p id="installHinweis" class="setting-hinweis" hidden>
+          📲 Auf dem iPhone/iPad: Teilen-Knopf antippen und
+          „Zum Home-Bildschirm" wählen – dann läuft Code-Katze wie eine App.
+        </p>
+        <p class="setting-hinweis">Installiert läuft das Spiel auch ohne Internet.</p>
+      </div>
+
       <!-- Symbol-Erklärung (Legende) -->
       <div class="setting-gruppe">
         <div class="setting-titel">Was bedeuten die Symbole?</div>
@@ -286,6 +339,9 @@
           <li><span class="legende__icon">↱</span><span>Die Katze eine Vierteldrehung nach rechts drehen.</span></li>
           <li><span class="legende__icon">💥</span><span>Hier ist die Katze angestoßen (Wand oder Hindernis).</span></li>
           <li><span class="legende__icon">⭐💡</span><span>Sterne = cleverer Code, Glühbirnen = gleich beim 1. Versuch geschafft.</span></li>
+          <li><span class="legende__icon">×</span><span>Kreuz am Block: löscht den Befehl. Tipp auf den Block: setzt eine Einfügemarke – neue Befehle landen davor.</span></li>
+          <li><span class="legende__icon">🐾</span><span>„1 Schritt": führt nur den nächsten Befehl aus – zum Nachvollziehen.</span></li>
+          <li><span class="legende__icon">⏹</span><span>Stopp: hält ein laufendes Programm sofort an.</span></li>
         </ul>
         <div class="setting-titel setting-titel--klein">Profi-Bausteine</div>
         <ul class="legende">
@@ -297,7 +353,8 @@
           <li><span class="legende__icon">）</span><span>Ende-Klammer – schließt eine Schleife oder einen Logikblock.</span></li>
         </ul>
         <p class="setting-hinweis">⭐ Tipp: Weniger Bausteine = bessere Bewertung.
-          Nutze Schleifen, statt viele gleiche Blöcke zu legen!</p>
+          Wer eine Schleife benutzt, bekommt außerdem einen
+          🔁 Schleifen-Bonus-Stern!</p>
       </div>
 
       <button id="settingsFertig" class="steuer-btn steuer-btn--play" type="button">Fertig</button>
@@ -335,6 +392,8 @@
     <div class="overlay__box overlay__box--settings">
       <button id="levelWahlClose" class="modal-close" type="button" aria-label="Level-Auswahl schließen">✕</button>
       <h2 class="overlay__titel">🗺️ Level wählen</h2>
+      <!-- Stufen-Tabs (Leicht/Mittel/Schwer) – per JS gefüllt -->
+      <div id="levelWahlTabs" class="levelwahl-tabs"></div>
       <div id="levelWahlGrid" class="levelwahl"></div>
     </div>
   </div>

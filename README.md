@@ -27,7 +27,12 @@ mögen (🥛 Milch, 🐭 Maus, 🧶 Wollknäuel, 🐦 Vogel, 🦋 Schmetterling 
 | ↰ Links | Die Katze eine Vierteldrehung nach links |
 | ↱ Rechts | Die Katze eine Vierteldrehung nach rechts |
 | ▶︎ Start | Die Warteschlange ausführen |
+| ⏹ Stopp | Während des Laufs wird der Start-Button zum Stopp-Button – das Programm hält sofort an (wichtig bei langen Schleifen) |
+| 🐾 1 Schritt | Einzelschritt-Modus: führt nur den **nächsten** Befehl aus und pausiert dann – ein kleiner „Debugger" zum Nachvollziehen |
 | 🧹 Löschen | Die gesamte Warteschlange leeren |
+
+Am Desktop geht alles auch per **Tastatur**: Pfeiltasten = Befehle,
+Enter = Start, Backspace = letzten Block löschen, Escape = Stopp/Fenster zu.
 
 ## Profi-Modus (Schleifen & Logik)
 
@@ -48,23 +53,29 @@ verschachtelt werden:
 
 So üben Kinder die zentralen Programmier-Konzepte **Schleife** (zählend,
 kopfgesteuert, „bis Ziel") und **Bedingung**. Blöcke lassen sich
-verschachteln; fehlende oder überzählige Klammern werden vor dem Start
-freundlich gemeldet.
+verschachteln; fehlende oder überzählige Klammern **und leere Blöcke**
+werden vor dem Start freundlich gemeldet (und kosten keinen 💡-Versuch).
 
 ## Level & Fortschritt
 
 Es gibt **20 Level pro Schwierigkeit** (60 insgesamt), alle per Breitensuche
-auf Lösbarkeit geprüft. Nach dem letzten Level einer Stufe geht es
+auf Lösbarkeit geprüft und **innerhalb jeder Stufe aufsteigend nach der
+Länge der kürzesten Lösung sortiert** – die Schwierigkeit steigt also
+wirklich Schritt für Schritt. Nach dem letzten Level einer Stufe geht es
 **automatisch eine Stufe höher** (leicht → mittel → schwer). Nach „schwer"
 bleibt es bei „schwer" – es wird nie selbstständig auf eine leichtere Stufe
 zurückgeschaltet.
 
-Der **Fortschritt wird gespeichert** (localStorage): Beim nächsten Öffnen
-geht es genau da weiter, wo man aufgehört hat. Ein Tipp auf die
-**Level-Anzeige oben links** („Leicht · 3/20") öffnet die **Level-Auswahl**:
-alle Level der Stufe als Knöpfe, gelöste zeigen ihre beste Sterne-Zahl.
-Beim allerersten Start erklärt ein **Mini-Tutorial** in drei Schritten,
-wie das Spiel funktioniert.
+Der **Fortschritt wird pro Stufe gespeichert** (localStorage): Beim
+nächsten Öffnen geht es genau da weiter, wo man aufgehört hat – und auch
+ein Wechsel der Schwierigkeit kostet keinen Fortschritt mehr. Ein Tipp auf
+die **Level-Anzeige oben links** („Leicht · 3/20") öffnet die
+**Level-Auswahl** mit **Stufen-Tabs** (Leicht/Mittel/Schwer): alle Level
+als Knöpfe, gelöste zeigen ihre besten Sterne und 💡.
+
+Beim allerersten Start erklärt ein kurzes Hallo-Fenster das Spiel, danach
+führt eine **interaktive Coach-Sprechblase** durch das erste Level
+(„Tippe Befehle" → „Drücke ▶ Start") – die passenden Knöpfe pulsieren dabei.
 
 ## Bewertung (zwei Reihen)
 
@@ -72,11 +83,13 @@ Nach jedem gelösten Level gibt es zwei Bewertungen mit je **1–3 Symbolen**:
 
 - **⭐ Sterne – cleverer Code:** Das Spiel kennt die theoretisch kürzeste
   Lösung (sicher per Breitensuche berechnet) und vergleicht sie mit der
-  Anzahl deiner Bausteine. Wer **Schleifen** statt vieler Einzelblöcke nutzt,
-  bekommt mehr Sterne.
+  Anzahl deiner Bausteine. Wer eine **Schleife** benutzt, bekommt zusätzlich
+  einen **🔁 Schleifen-Bonus-Stern** – so lohnt sich echtes Programmieren
+  auch dann, wenn die Klammern zwei Bausteine „Overhead" kosten.
 - **💡 Glühbirnen – gleich richtig gedacht:** Beim **1. Versuch** gelöst gibt
-  die volle Punktzahl; je mehr Versuche, desto weniger. Das motiviert, erst
-  zu überlegen statt nur auszuprobieren.
+  die volle Punktzahl; je mehr Versuche, desto weniger. Der Versuchszähler
+  wird **pro Level gespeichert** – kurz in ein anderes Level wechseln setzt
+  ihn nicht zurück.
 
 Ist noch Luft nach oben, erscheint ein **„Nochmal"**-Button: Das Level
 startet dann **komplett frisch** (Programm weg, Versuchszähler auf 0), damit
@@ -86,12 +99,18 @@ man es wirklich noch einmal neu und diesmal gleich richtig probiert.
 
 Läuft etwas schief, zeigt das Spielbrett direkt **wo**: ein 💥 auf dem Feld,
 gegen das die Katze gestoßen ist, bzw. ein ❓, wenn das Ziel nicht erreicht
-wurde – nicht nur als Text. Die gelaufene Spur mit Dreh-Symbolen (↰ / ↱)
-hilft beim Nachvollziehen.
+wurde – nicht nur als Text. Nach einem Moment **schrumpft der Marker in die
+Ecke**, damit das Hindernis darunter wieder sichtbar ist. Die gelaufene
+Spur mit Dreh-Symbolen (↰ / ↱) hilft beim Nachvollziehen; mehrere Drehungen
+auf demselben Feld werden **versetzt gestapelt** und liegen über der Katze.
+Beim Sieg gibt es erst eine kleine **Konfetti-Feier direkt am Zielfeld**,
+bevor das Ergebnis-Fenster erscheint.
 
-Ein Tipp auf einen bereits gelegten Befehlsblock **löscht** diesen wieder.
-Die Warteschlange bricht bei vielen Befehlen **mehrzeilig** um, damit das
-ganze „Programm" auf einen Blick sichtbar bleibt.
+Das **×-Kreuz** an einem Befehlsblock **löscht** diesen wieder. Ein Tipp
+auf den **Block selbst** setzt eine **Einfügemarke**: Neue Befehle landen
+dann davor – so lässt sich ein vergessener Befehl mitten im Programm
+ergänzen. Die Warteschlange bricht bei vielen Befehlen **mehrzeilig** um,
+damit das ganze „Programm" auf einen Blick sichtbar bleibt.
 
 ## Nachvollziehen & Debuggen
 
@@ -111,9 +130,24 @@ ganze „Programm" auf einen Blick sichtbar bleibt.
   Zusammenstoß und Sieg (per WebAudio erzeugt, keine Audiodateien nötig).
 - **Tempo**: 🐢 langsam · 🐾 normal · 🐇 schnell.
 - **Profi-Modus** mit Schleifen und Bedingungen.
+- **📲 Als App installieren** (siehe unten).
 - **Symbol-Legende**, die alle vorkommenden Symbole erklärt.
 
 Alle Einstellungen werden im Browser gespeichert (localStorage).
+
+## Als App installieren (PWA)
+
+Code-Katze ist eine **Progressive Web App**: Über den Button
+**„📲 Auf dem Gerät installieren"** in den Einstellungen (erscheint, sobald
+der Browser die Installation anbietet) landet das Spiel als eigenes Icon
+auf dem Home-Bildschirm und läuft dann **auch ohne Internet** (Service
+Worker cached alle Dateien). Auf dem iPhone/iPad geht es über
+Teilen → „Zum Home-Bildschirm"; die Einstellungen zeigen dort eine kurze
+Anleitung.
+
+Wird das Spiel **quer** gehalten (flaches Handy-Querformat), bittet ein
+freundlicher Hinweis darum, das Gerät hochkant zu drehen – das Layout ist
+bewusst fürs Hochformat gebaut.
 
 ## Die Katze
 
@@ -132,17 +166,22 @@ am besten auf einem Smartphone im Hochformat.
 Bewusst einfach gehalten, leicht erweiterbar:
 
 ```
-index.html   – Struktur (Header, Spielfeld, Buttons, Queue, Overlay)
-style.css    – Mobile-First Design (nur Emojis & CSS-Formen, keine Bilder)
-game.js      – Spiel-Logik (Vanilla JavaScript, ausführlich kommentiert)
+index.html            – Struktur (Header, Spielfeld, Buttons, Queue, Overlays)
+style.css             – Mobile-First Design (nur Emojis & CSS-Formen)
+game.js               – Spiel-Logik (Vanilla JavaScript, ausführlich kommentiert)
+manifest.webmanifest  – PWA-Manifest (Name, Farben, Icons)
+sw.js                 – Service Worker (Offline-Cache; bei Änderungen die
+                        CACHE_VERSION erhöhen!)
+icon-192.png/-512.png – App-Icons
 ```
 
 ### Neue Level hinzufügen
 
 Im Objekt `SCHWIERIGKEITEN` (oben in `game.js`) bei der passenden Stufe
 (`leicht` / `mittel` / `schwer`) einfach einen neuen Eintrag an die
-`levels`-Liste anhängen. Eine Karte besteht aus Textzeilen mit je einem
-Zeichen pro Feld:
+`levels`-Liste anhängen. Das Feld `min` (Länge der kürzesten Lösung) dient
+nur der Info und der Sortierung – zur Laufzeit wird es frisch berechnet.
+Eine Karte besteht aus Textzeilen mit je einem Zeichen pro Feld:
 
 ```
 .  = freies Feld
