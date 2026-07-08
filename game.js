@@ -34,7 +34,14 @@
    Altersstufen) – wie die drei Farben in anderen JonFie-Spielen:
        leicht (grün)  · mittel (orange)  · schwer (rot)
    Neue Level lassen sich super einfach anhängen: einfach ein weiteres
-   Objekt mit { name, blick, karte, ziel } in die passende Liste eintragen.
+   Objekt mit { blick, karte, ziel } in die passende Liste eintragen.
+
+   'min' ist die Länge der kürzesten Lösung (per Breitensuche berechnet) –
+   nur zur Info und für die Sortierung: Innerhalb jeder Stufe sind die
+   Level aufsteigend nach 'min' geordnet, damit die Schwierigkeit wirklich
+   Schritt für Schritt ansteigt. Zur Laufzeit wird das Minimum immer
+   frisch berechnet, 'min' muss also beim Ändern einer Karte nicht
+   zwingend gepflegt werden.
 
    'ziel' bestimmt, WAS die Katze am Zielfeld (Zeichen 'F') findet – nicht
    immer nur ein Fisch, sondern auch andere Sachen, die Katzen mögen.
@@ -49,91 +56,91 @@ const SCHWIERIGKEITEN = {
     label: "Leicht",
     farbe: "#3ec96a",
     levels: [
-      { name: 'L1', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+      { blick: 1, min: 2, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         '.....',
         '.....',
         '...F.',
         '...K.',
         '.....',
       ]},
-      { name: 'L2', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+      { blick: 0, min: 3, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         '.....',
         '..K.F',
         '.....',
         '.....',
         '.....',
       ]},
-      { name: 'L3', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
-        '.....',
-        '..F..',
-        '.....',
-        '.....',
-        '....K',
-      ]},
-      { name: 'L4', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 0, min: 4, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '.....',
         '.....',
         '.....',
         '....K',
         '...F.',
       ]},
-      { name: 'L5', blick: 3, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+      { blick: 3, min: 4, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
         '.K...',
         '.....',
         'F....',
         '.....',
         '.H...',
       ]},
-      { name: 'L6', blick: 0, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+      { blick: 0, min: 4, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
         'W....',
         '.....',
         '.K...',
         'F....',
         '.....',
       ]},
-      { name: 'L7', blick: 1, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
-        '.....',
-        '.F...',
-        '.....',
-        '.HK..',
-        '.....',
-      ]},
-      { name: 'L8', blick: 1, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+      { blick: 1, min: 4, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
         '...K.',
         '..F..',
         '....W',
         '.....',
         '.....',
       ]},
-      { name: 'L9', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
-        '....K',
-        '.FW.W',
+      { blick: 1, min: 5, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
         '.....',
+        '.F...',
         '.....',
+        '.HK..',
         '.....',
       ]},
-      { name: 'L10', blick: 0, ziel: { i: '🥛', n: 'die Milch' }, karte: [
-        '....W',
-        '....F',
-        'W....',
-        '.....',
-        '..K..',
-      ]},
-      { name: 'L11', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 0, min: 5, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '..F..',
         'W....',
         '.....',
         'WK...',
         '.....',
       ]},
-      { name: 'L12', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 0, min: 5, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '.....',
         '...H.',
         'K....',
         '.....',
         '.FW..',
       ]},
-      { name: 'L13', blick: 3, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+      { blick: 0, min: 6, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '.....',
+        '..F..',
+        '.....',
+        '.....',
+        '....K',
+      ]},
+      { blick: 0, min: 6, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        '....K',
+        '.FW.W',
+        '.....',
+        '.....',
+        '.....',
+      ]},
+      { blick: 0, min: 6, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '....W',
+        '....F',
+        'W....',
+        '.....',
+        '..K..',
+      ]},
+      { blick: 3, min: 6, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
         '......',
         '.....F',
         '..K..H',
@@ -141,31 +148,7 @@ const SCHWIERIGKEITEN = {
         '.W....',
         '......',
       ]},
-      { name: 'L14', blick: 2, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
-        '...W.K',
-        '.....H',
-        '......',
-        '..W...',
-        '.....F',
-        '......',
-      ]},
-      { name: 'L15', blick: 1, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
-        'W..FH.',
-        '......',
-        '......',
-        '......',
-        '.....W',
-        '....K.',
-      ]},
-      { name: 'L16', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
-        '......',
-        'K.....',
-        '......',
-        'W.W...',
-        '......',
-        '..W.F.',
-      ]},
-      { name: 'L17', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+      { blick: 1, min: 7, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         'W.....',
         '..WF..',
         '......',
@@ -173,7 +156,31 @@ const SCHWIERIGKEITEN = {
         '.....W',
         '.K....',
       ]},
-      { name: 'L18', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+      { blick: 0, min: 8, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+        '...H..',
+        '....W.',
+        '.K.W..',
+        '.....F',
+        '.....W',
+        '......',
+      ]},
+      { blick: 2, min: 9, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        '...W.K',
+        '.....H',
+        '......',
+        '..W...',
+        '.....F',
+        '......',
+      ]},
+      { blick: 1, min: 9, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        'W..FH.',
+        '......',
+        '......',
+        '......',
+        '.....W',
+        '....K.',
+      ]},
+      { blick: 1, min: 9, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         'H..K.W',
         'W.....',
         '......',
@@ -181,21 +188,21 @@ const SCHWIERIGKEITEN = {
         '......',
         '.....F',
       ]},
-      { name: 'L19', blick: 3, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 0, min: 10, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+        '......',
+        'K.....',
+        '......',
+        'W.W...',
+        '......',
+        '..W.F.',
+      ]},
+      { blick: 3, min: 13, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '..WWHF',
         '.W....',
         '......',
         '......',
         '......',
         'K.....',
-      ]},
-      { name: 'L20', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
-        '...H..',
-        '....W.',
-        '.K.W..',
-        '.....F',
-        '.....W',
-        '......',
       ]},
     ],
   },
@@ -204,63 +211,63 @@ const SCHWIERIGKEITEN = {
     label: "Mittel",
     farbe: "#ff8a5c",
     levels: [
-      { name: 'L1', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+      { blick: 0, min: 7, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         '.F...',
         '....W',
         '....K',
         '.....',
         '..W.W',
       ]},
-      { name: 'L2', blick: 3, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+      { blick: 3, min: 7, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         'W....',
         '...H.',
         'KW...',
         '....F',
         '.....',
       ]},
-      { name: 'L3', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 0, min: 7, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '..WK.',
         'F....',
         '..H..',
         '.....',
         '.WH..',
       ]},
-      { name: 'L4', blick: 2, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 2, min: 7, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         'K....',
         '..W..',
         'H.F..',
         '...H.',
         'H....',
       ]},
-      { name: 'L5', blick: 1, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+      { blick: 1, min: 8, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
         '.W.F.',
         '.W.H.',
         '.....',
         '...H.',
         '.K.H.',
       ]},
-      { name: 'L6', blick: 2, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
-        '....F',
-        '.WH..',
-        'W....',
-        'W.W..',
-        'K....',
-      ]},
-      { name: 'L7', blick: 3, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+      { blick: 3, min: 9, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
         '...FH',
         '....W',
         'WH...',
         'K...W',
         '....H',
       ]},
-      { name: 'L8', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+      { blick: 2, min: 10, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+        '....F',
+        '.WH..',
+        'W....',
+        'W.W..',
+        'K....',
+      ]},
+      { blick: 0, min: 10, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
         'WWW..',
         '..W..',
         '.H...',
         'F.H.K',
         '.....',
       ]},
-      { name: 'L9', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+      { blick: 0, min: 10, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         'F.....',
         '.....W',
         'W.....',
@@ -268,23 +275,7 @@ const SCHWIERIGKEITEN = {
         '..W...',
         'W..WK.',
       ]},
-      { name: 'L10', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
-        '......',
-        '..W...',
-        '..W...',
-        '...W.F',
-        '...HWH',
-        '.K.W..',
-      ]},
-      { name: 'L11', blick: 3, ziel: { i: '🐭', n: 'die Maus' }, karte: [
-        '.F..W.',
-        '..H.W.',
-        '.H....',
-        '....W.',
-        'W..W..',
-        '..W..K',
-      ]},
-      { name: 'L12', blick: 2, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 2, min: 11, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         'K.....',
         'W.WWH.',
         '.H....',
@@ -292,15 +283,7 @@ const SCHWIERIGKEITEN = {
         '...H.F',
         '......',
       ]},
-      { name: 'L13', blick: 0, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
-        'WW.F..',
-        'KW..W.',
-        '..W...',
-        '..H..W',
-        '.....W',
-        '....W.',
-      ]},
-      { name: 'L14', blick: 3, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+      { blick: 3, min: 12, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
         '.....W',
         'K.H..W',
         '.WHW..',
@@ -308,15 +291,23 @@ const SCHWIERIGKEITEN = {
         '......',
         '.....W',
       ]},
-      { name: 'L15', blick: 0, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
-        '.....W',
-        'W..K.W',
-        'WH....',
-        '.WH.W.',
-        '.WFH..',
-        '......',
+      { blick: 3, min: 13, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+        '.F..W.',
+        '..H.W.',
+        '.H....',
+        '....W.',
+        'W..W..',
+        '..W..K',
       ]},
-      { name: 'L16', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+      { blick: 0, min: 14, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        'WW.F..',
+        'KW..W.',
+        '..W...',
+        '..H..W',
+        '.....W',
+        '....W.',
+      ]},
+      { blick: 0, min: 14, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
         '....KW',
         '...WH.',
         '.HW...',
@@ -324,15 +315,15 @@ const SCHWIERIGKEITEN = {
         '..W...',
         '..F.W.',
       ]},
-      { name: 'L17', blick: 0, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
-        'H..WKH',
-        '.H....',
-        'WH..W.',
-        'W.HW..',
-        'F....W',
+      { blick: 1, min: 15, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         '......',
+        '..W...',
+        '..W...',
+        '...W.F',
+        '...HWH',
+        '.K.W..',
       ]},
-      { name: 'L18', blick: 2, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+      { blick: 2, min: 15, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         '.H.WW.',
         '.....K',
         '.W..H.',
@@ -340,7 +331,15 @@ const SCHWIERIGKEITEN = {
         '....F.',
         '....WH',
       ]},
-      { name: 'L19', blick: 2, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 0, min: 16, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        '.....W',
+        'W..K.W',
+        'WH....',
+        '.WH.W.',
+        '.WFH..',
+        '......',
+      ]},
+      { blick: 2, min: 16, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '.K....',
         '.W....',
         'WH.WW.',
@@ -348,12 +347,20 @@ const SCHWIERIGKEITEN = {
         '.W.W.W',
         '.W.F..',
       ]},
-      { name: 'L20', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 0, min: 16, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '.HW..W',
         '...WHK',
         'W.WW..',
         'H..W..',
         'F.W..W',
+        '......',
+      ]},
+      { blick: 0, min: 17, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'H..WKH',
+        '.H....',
+        'WH..W.',
+        'W.HW..',
+        'F....W',
         '......',
       ]},
     ],
@@ -363,7 +370,7 @@ const SCHWIERIGKEITEN = {
     label: "Schwer",
     farbe: "#e23b3b",
     levels: [
-      { name: 'L1', blick: 1, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+      { blick: 1, min: 11, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
         'H.....',
         '..K.WW',
         '..H...',
@@ -371,15 +378,7 @@ const SCHWIERIGKEITEN = {
         '.H....',
         '.F.W..',
       ]},
-      { name: 'L2', blick: 1, ziel: { i: '🥛', n: 'die Milch' }, karte: [
-        '.H....',
-        '.WFW..',
-        '..HKW.',
-        '....H.',
-        '......',
-        '....H.',
-      ]},
-      { name: 'L3', blick: 1, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 1, min: 13, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         '.....K',
         'WW....',
         '..W.H.',
@@ -387,7 +386,7 @@ const SCHWIERIGKEITEN = {
         'F...H.',
         '......',
       ]},
-      { name: 'L4', blick: 1, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 1, min: 15, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '..W...',
         'FH...H',
         '...W.W',
@@ -395,15 +394,15 @@ const SCHWIERIGKEITEN = {
         '....W.',
         '.W.HK.',
       ]},
-      { name: 'L5', blick: 0, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
-        '.KH...',
-        '..H.F.',
-        '.W..W.',
-        '.H..HW',
-        '.H.H.W',
+      { blick: 1, min: 17, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        '.H....',
+        '.WFW..',
+        '..HKW.',
+        '....H.',
         '......',
+        '....H.',
       ]},
-      { name: 'L6', blick: 0, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+      { blick: 0, min: 18, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
         'K.W.HH',
         '.....W',
         '.H....',
@@ -411,15 +410,7 @@ const SCHWIERIGKEITEN = {
         '..WWWW',
         '....F.',
       ]},
-      { name: 'L7', blick: 0, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
-        'FHWWWK',
-        '..HH..',
-        '...W..',
-        '...W.H',
-        '...H.H',
-        '.W....',
-      ]},
-      { name: 'L8', blick: 0, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+      { blick: 0, min: 19, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
         'K...H.',
         '.W.HFH',
         '.WHW..',
@@ -427,25 +418,15 @@ const SCHWIERIGKEITEN = {
         'W...W.',
         'WH..H.',
       ]},
-      { name: 'L9', blick: 2, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
-        'W.....W',
-        '.W....K',
-        '....WWW',
-        '...H.FW',
-        '..HW...',
-        '...W..W',
-        '.H...W.',
+      { blick: 0, min: 21, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '.KH...',
+        '..H.F.',
+        '.W..W.',
+        '.H..HW',
+        '.H.H.W',
+        '......',
       ]},
-      { name: 'L10', blick: 3, ziel: { i: '🥛', n: 'die Milch' }, karte: [
-        'F....H.',
-        '....HH.',
-        '..HW...',
-        '...WKW.',
-        'WH..WH.',
-        '.H.....',
-        'H.WH...',
-      ]},
-      { name: 'L11', blick: 0, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 0, min: 21, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         'HWH....',
         '......W',
         '.H.HW..',
@@ -454,7 +435,7 @@ const SCHWIERIGKEITEN = {
         '..WKW..',
         '.H.....',
       ]},
-      { name: 'L12', blick: 0, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 0, min: 21, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         '..H..H.',
         'WW..WH.',
         '.H....F',
@@ -463,16 +444,15 @@ const SCHWIERIGKEITEN = {
         'H..W.K.',
         '.......',
       ]},
-      { name: 'L13', blick: 1, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
-        '..W.WH.',
-        'W..H...',
-        '.W...W.',
-        '...W.W.',
-        '.WW.W..',
-        '.FH...H',
-        '...WKWW',
+      { blick: 0, min: 23, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+        'FHWWWK',
+        '..HH..',
+        '...W..',
+        '...W.H',
+        '...H.H',
+        '.W....',
       ]},
-      { name: 'L14', blick: 3, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
+      { blick: 3, min: 23, ziel: { i: '🦋', n: 'den Schmetterling' }, karte: [
         '...HHF.',
         'WH.H...',
         'W..HW.H',
@@ -481,7 +461,16 @@ const SCHWIERIGKEITEN = {
         '.H.....',
         '...W.HW',
       ]},
-      { name: 'L15', blick: 3, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
+      { blick: 3, min: 24, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+        'F....H.',
+        '....HH.',
+        '..HW...',
+        '...WKW.',
+        'WH..WH.',
+        '.H.....',
+        'H.WH...',
+      ]},
+      { blick: 3, min: 24, ziel: { i: '🍗', n: 'das Hähnchen' }, karte: [
         '...HWFH',
         '.H..H.H',
         '..KW...',
@@ -490,7 +479,16 @@ const SCHWIERIGKEITEN = {
         '.WW.W..',
         'WWW...H',
       ]},
-      { name: 'L16', blick: 1, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
+      { blick: 2, min: 26, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'W.....W',
+        '.W....K',
+        '....WWW',
+        '...H.FW',
+        '..HW...',
+        '...W..W',
+        '.H...W.',
+      ]},
+      { blick: 1, min: 26, ziel: { i: '🐛', n: 'die Raupe' }, karte: [
         '..H..W.',
         'W...W.H',
         '..H...H',
@@ -499,16 +497,7 @@ const SCHWIERIGKEITEN = {
         '.H.....',
         '.WW.HWW',
       ]},
-      { name: 'L17', blick: 3, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
-        'HHW....',
-        '.H..W..',
-        '.H.WH..',
-        'H...WW.',
-        'H..WW..',
-        '..WK..H',
-        'HFH.WHH',
-      ]},
-      { name: 'L18', blick: 2, ziel: { i: '🥛', n: 'die Milch' }, karte: [
+      { blick: 2, min: 27, ziel: { i: '🥛', n: 'die Milch' }, karte: [
         'WW.H.FH',
         '..W..WW',
         'W...WKW',
@@ -517,7 +506,7 @@ const SCHWIERIGKEITEN = {
         '....H..',
         'WW.HWWW',
       ]},
-      { name: 'L19', blick: 2, ziel: { i: '🐭', n: 'die Maus' }, karte: [
+      { blick: 2, min: 28, ziel: { i: '🐭', n: 'die Maus' }, karte: [
         'WHW.W.H',
         '.HFHHHW',
         'W..W...',
@@ -526,7 +515,25 @@ const SCHWIERIGKEITEN = {
         'W.W.W.K',
         'W...W..',
       ]},
-      { name: 'L20', blick: 3, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
+      { blick: 1, min: 30, ziel: { i: '🐦', n: 'den Vogel' }, karte: [
+        '..W.WH.',
+        'W..H...',
+        '.W...W.',
+        '...W.W.',
+        '.WW.W..',
+        '.FH...H',
+        '...WKWW',
+      ]},
+      { blick: 3, min: 30, ziel: { i: '🐟', n: 'den Fisch' }, karte: [
+        'HHW....',
+        '.H..W..',
+        '.H.WH..',
+        'H...WW.',
+        'H..WW..',
+        '..WK..H',
+        'HFH.WHH',
+      ]},
+      { blick: 3, min: 30, ziel: { i: '🧶', n: 'das Wollknäuel' }, karte: [
         'F.WHK.W',
         'W..HH..',
         'HW.WWW.',
@@ -601,6 +608,48 @@ let queueBloecke = [];
 // gleich beim 1. Versuch schaffen = mehr Köpfchen-Punkte).
 let versuche = 0;
 
+// Versuche werden PRO LEVEL gemerkt (und mitgespeichert), damit kurzes
+// Level-Wechseln den Zähler nicht heimlich zurücksetzt. Nur der
+// "Nochmal"-Button setzt ihn ganz bewusst auf 0.
+let versucheStand = { leicht: {}, mittel: {}, schwer: {} };
+
+// Beste 💡-Zahl pro Level (wie bestSterne, für die Level-Auswahl).
+let bestKnobel = { leicht: {}, mittel: {}, schwer: {} };
+
+// Levelstand PRO Stufe: Wo ging es in leicht/mittel/schwer zuletzt weiter?
+// So geht beim Stufen-Wechsel kein Fortschritt mehr verloren.
+let levelStand = { leicht: 0, mittel: 0, schwer: 0 };
+
+// Wurde während des Laufs der ⏹-Stopp-Knopf gedrückt?
+let abbruchGewuenscht = false;
+
+// Einzelschritt-Modus: Programm pausiert nach jedem Befehl, bis der
+// 🐾-Schritt-Knopf erneut gedrückt wird (kleiner "Debugger" für Kinder).
+let schrittweise      = false;
+let schrittGuthaben   = 0;      // wie viele Schritte schon "freigegeben" sind
+let schrittAufloeser  = null;   // Promise-Auflöser, wartet auf den Knopf
+
+// Alle aktuell sichtbaren Crash-/Stopp-Marker (für Neuzeichnen bei Resize):
+let crashMarker = [];           // [{ z, s, emoji, klein }]
+
+// Einfügemarke in der Queue: Neue Befehle landen VOR diesem Index.
+// null = normal hinten anhängen.
+let einfuegeIndex = null;
+
+// Gemerktes "beforeinstallprompt"-Event für den Installieren-Button (PWA).
+let installPromptEvent = null;
+
+// Welche Stufe zeigt die Level-Auswahl gerade an? (Tabs im Dialog)
+let levelWahlStufe = 'leicht';
+
+// Kleiner interaktiver Coach beim allerersten Spiel (geführtes 1. Level):
+// 0 = aus · 1 = "Tippe Befehle" · 2 = "Drücke Start".
+let coachSchritt = 0;
+
+// Abwechslungsreiche Sieg-Meldungen (statt immer "Super!").
+const LOB = ['Super!', 'Toll gemacht!', 'Miau-tastisch!', 'Spitze!',
+             'Klasse!', 'Schnurr-fekt!', 'Stark!'];
+
 
 /* ==========================================================================
    C) DOM-REFERENZEN  (einmal holen, dann wiederverwenden)
@@ -612,6 +661,7 @@ const elLevel       = document.getElementById('levelAnzeige');
 const elMeldung     = document.getElementById('meldung');
 const elPlayBtn     = document.getElementById('playBtn');
 const elResetBtn    = document.getElementById('resetBtn');
+const elStepBtn     = document.getElementById('stepBtn');
 
 // Gewinn-Overlay
 const elOverlay      = document.getElementById('gewinnOverlay');
@@ -630,7 +680,10 @@ const elSettingsFertig = document.getElementById('settingsFertig');
 const elSpurToggle     = document.getElementById('spurToggle');
 const elProfiToggle    = document.getElementById('profiToggle');
 const elProfiAktionen  = document.getElementById('profiAktionen');
+const elProfiWrap      = document.getElementById('profiWrap');
 const elTonToggle      = document.getElementById('tonToggle');
+const elInstallBtn     = document.getElementById('installBtn');
+const elInstallHinweis = document.getElementById('installHinweis');
 
 // Tutorial-Overlay (nur beim ersten Start)
 const elTutorial       = document.getElementById('tutorialOverlay');
@@ -639,11 +692,16 @@ const elTutorialBtn    = document.getElementById('tutorialBtn');
 // Level-Auswahl-Overlay
 const elLevelWahl      = document.getElementById('levelWahlOverlay');
 const elLevelWahlGrid  = document.getElementById('levelWahlGrid');
+const elLevelWahlTabs  = document.getElementById('levelWahlTabs');
 const elLevelWahlClose = document.getElementById('levelWahlClose');
 
+// Coach-Sprechblase (geführtes erstes Level)
+const elCoach          = document.getElementById('coach');
+
 // Diese Elemente werden bei jedem Levelaufbau neu erzeugt:
-let elKatze = null;   // die CSS-Katze
-let elSpur  = null;   // das SVG-Overlay für die Spur
+let elKatze    = null;   // die CSS-Katze
+let elSpur     = null;   // das SVG-Overlay für die Spur (Linie + Startpunkt)
+let elSpurDreh = null;   // zweites SVG ÜBER der Katze (Dreh-Symbole ↰/↱)
 
 // Namensraum, den SVG-Elemente zwingend brauchen:
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -691,7 +749,10 @@ function ladeLevel(index) {
     SCHWIERIGKEITEN[aktuelleSchwierigkeit].label +
     ' · ' + (index + 1) + '/' + aktuelleLevels().length;
   setzeMeldung('Tippe Befehle, dann ▶︎', false);
-  versuche = 0;   // neuer Level -> Versuchszähler zurücksetzen (für 💡-Bonus)
+  // Versuchszähler pro Level gemerkt: Kurz weg- und zurückwechseln setzt
+  // ihn NICHT zurück (nur "Nochmal" tut das – ganz bewusst).
+  versuche = versucheStand[aktuelleSchwierigkeit][index] || 0;
+  einfuegeIndex = null;   // Einfügemarke gehört zum alten Programm
 
   // 4) Spur und Crash-Markierungen zurücksetzen, Grid zeichnen.
   loescheSpur();
@@ -703,9 +764,28 @@ function ladeLevel(index) {
 }
 
 /**
+ * Setzt das Spielbrett IMMER exakt quadratisch auf den verfügbaren Platz
+ * (begrenzt durch Breite UND Höhe). Reines CSS konnte das Quadrat bei
+ * flachen Fenstern nicht halten – dann stimmte die Pixel-Mathematik von
+ * Katze, Spur und Markern nicht mehr und alles "schwebte" außerhalb.
+ */
+function passeSpielfeldGroesseAn() {
+  const rahmen = elSpielfeld.parentElement;
+  const stil   = getComputedStyle(rahmen);
+  const verfB  = rahmen.clientWidth
+    - (parseFloat(stil.paddingLeft) || 0) - (parseFloat(stil.paddingRight)  || 0);
+  const verfH  = rahmen.clientHeight
+    - (parseFloat(stil.paddingTop)  || 0) - (parseFloat(stil.paddingBottom) || 0);
+  const groesse = Math.max(120, Math.min(verfB, verfH, 520));
+  elSpielfeld.style.width  = groesse + 'px';
+  elSpielfeld.style.height = groesse + 'px';
+}
+
+/**
  * Erzeugt die Zellen des Grids, das SVG-Spur-Overlay und die CSS-Katze.
  */
 function zeichneRaster() {
+  passeSpielfeldGroesseAn();
   elSpielfeld.innerHTML = '';
 
   // Anzahl der Spalten/Zeilen als CSS-Grid-Vorgabe setzen.
@@ -735,6 +815,12 @@ function zeichneRaster() {
   elSpur = document.createElementNS(SVG_NS, 'svg');
   elSpur.setAttribute('class', 'spur');
   elSpielfeld.appendChild(elSpur);
+
+  // Zweites SVG NUR für die Dreh-Symbole – liegt ÜBER der Katze, damit
+  // Drehungen auch auf dem Feld sichtbar sind, auf dem die Katze sitzt.
+  elSpurDreh = document.createElementNS(SVG_NS, 'svg');
+  elSpurDreh.setAttribute('class', 'spur spur--dreh');
+  elSpielfeld.appendChild(elSpurDreh);
 
   // Katze aus reinen CSS-Formen zusammensetzen (kein Emoji-Gesicht mehr!).
   // Grundausrichtung: schaut nach OBEN. Vorne = Ohren/Augen/Nase, hinten = Schweif.
@@ -769,8 +855,11 @@ function setzeKatzeAufStart() {
  * Stellen gebraucht (Katze positionieren, Spur zeichnen).
  */
 function zellenGeometrie() {
-  const padding = 8;   // muss zum padding in .spielfeld (CSS) passen
-  const gap     = 4;   // muss zum gap in .spielfeld (CSS) passen
+  // Padding und Gap direkt aus dem CSS auslesen – so kann das Stylesheet
+  // geändert werden, ohne dass hier Zahlen mitgepflegt werden müssen.
+  const stil    = getComputedStyle(elSpielfeld);
+  const padding = parseFloat(stil.paddingLeft) || 0;
+  const gap     = parseFloat(stil.columnGap) || 0;
   const innen   = elSpielfeld.clientWidth - padding * 2;
   const groesse = (innen - gap * (spaltenAnzahl - 1)) / spaltenAnzahl;
   return { padding, gap, groesse };
@@ -831,20 +920,50 @@ const BLOCK_INFO = {
 // Welche Baustein-Typen öffnen eine Klammer (Schleife/Logik)?
 const OEFFNER = new Set(['loop2', 'loop3', 'loopZiel', 'solangeFrei', 'wennFrei', 'wennWand']);
 
-/** Hängt einen neuen Befehl an die Warteschlange an. */
+/**
+ * Fügt einen neuen Befehl in die Warteschlange ein: normalerweise hinten,
+ * oder – wenn eine Einfügemarke gesetzt ist – genau VOR den markierten Block.
+ */
 function fuegeBefehlHinzu(typ) {
   if (laeuft) return;              // während des Laufs keine Änderungen
-  befehlsQueue.push(typ);
+  if (einfuegeIndex !== null && einfuegeIndex <= befehlsQueue.length) {
+    befehlsQueue.splice(einfuegeIndex, 0, typ);
+    einfuegeIndex++;               // Marke wandert mit (Tipp-Reihenfolge bleibt)
+  } else {
+    befehlsQueue.push(typ);
+  }
   zeichneQueue();
+  coachBefehlGelegt();             // Coach beim allerersten Spiel weiterschalten
 }
 
 /**
- * Entfernt den Befehl an Position 'index' (Tipp auf einen Block = "debuggen").
+ * Entfernt den Befehl an Position 'index' (Tipp auf das ×-Kreuz = "debuggen").
  */
 function loescheBefehl(index) {
   if (laeuft) return;
   befehlsQueue.splice(index, 1);
+  // Einfügemarke mitführen, damit sie vor demselben Block bleibt.
+  if (einfuegeIndex !== null) {
+    if (index < einfuegeIndex) einfuegeIndex--;
+    if (einfuegeIndex >= befehlsQueue.length || befehlsQueue.length === 0) {
+      einfuegeIndex = null;
+    }
+  }
   zeichneQueue();
+}
+
+/**
+ * Tipp auf einen Block (nicht das ×): setzt die Einfügemarke VOR diesen
+ * Block bzw. entfernt sie wieder. So kann mitten im Programm ein
+ * vergessener Befehl eingefügt werden.
+ */
+function setzeEinfuegemarke(index) {
+  if (laeuft) return;
+  einfuegeIndex = (einfuegeIndex === index) ? null : index;
+  zeichneQueue();
+  setzeMeldung(einfuegeIndex === null
+    ? 'Neue Befehle kommen wieder ans Ende.'
+    : 'Neue Befehle kommen vor die Marke ⌄', false);
 }
 
 /** Baut die sichtbare Warteschlange aus dem Array neu auf (mehrzeilig). */
@@ -857,12 +976,32 @@ function zeichneQueue() {
   }
 
   befehlsQueue.forEach((typ, index) => {
+    // Sichtbare Einfügemarke vor dem markierten Block.
+    if (einfuegeIndex === index) {
+      const caret = document.createElement('div');
+      caret.className = 'queue-caret';
+      caret.setAttribute('aria-hidden', 'true');
+      elQueue.appendChild(caret);
+    }
+
     const info = BLOCK_INFO[typ];
     const block = document.createElement('div');
     block.className = 'queue-block' + (info.klasse ? ' ' + info.klasse : '');
     block.textContent = info.text;
-    block.dataset.index = index;              // welchen Befehl löschen?
-    block.addEventListener('click', () => loescheBefehl(index));
+    block.dataset.index = index;
+
+    // Kleines ×-Kreuz als ECHTES Element: nur DAS löscht den Block.
+    // Ein Tipp auf den Block selbst setzt stattdessen die Einfügemarke.
+    const x = document.createElement('span');
+    x.className = 'queue-block__x';
+    x.textContent = '×';
+    x.addEventListener('click', (e) => {
+      e.stopPropagation();
+      loescheBefehl(index);
+    });
+    block.appendChild(x);
+
+    block.addEventListener('click', () => setzeEinfuegemarke(index));
     elQueue.appendChild(block);
   });
 }
@@ -912,6 +1051,18 @@ function warte(ms) {
    Sinus-/Dreieck-Ton, dessen Lautstärke schnell ausklingt ("Blip").
    -------------------------------------------------------------------------- */
 let audioCtx = null;   // wird beim ersten Ton angelegt (Browser-Vorgabe)
+
+/**
+ * iOS/Safari erlaubt Ton erst nach einer ECHTEN Nutzergeste. Deshalb wird
+ * der AudioContext beim allerersten Tippen angelegt und aufgeweckt –
+ * sonst bliebe das Spiel auf iPhones stumm.
+ */
+function entsperreAudio() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) { /* kein WebAudio verfügbar – still weiterspielen */ }
+}
 
 function spieleTon(art) {
   if (!einstellungen.tonAn) return;
@@ -964,23 +1115,33 @@ const MAX_ZIEL_WIEDERHOLUNGEN = 60;
  *   'gewonnen' -> Ziel erreicht · 'fehler' -> Hindernis/Problem · 'weiter'
  *   -> alles abgearbeitet, aber Ziel nicht erreicht.
  */
-async function starteAusführung() {
+async function starteAusführung(einzelschritt = false) {
   if (laeuft) return;
   if (befehlsQueue.length === 0) {
     setzeMeldung('Erst Befehle tippen! 🧩', true);
     return;
   }
 
-  // 1) Klammern der Schleifen/Logikblöcke prüfen.
-  const klammerFehler = pruefeKlammern();
-  if (klammerFehler) {
-    setzeMeldung(klammerFehler, true);
+  // 1) Programm VOR dem Start prüfen (Klammern + leere Blöcke). Solche
+  //    Struktur-Fehler zählen bewusst NICHT als Versuch – das Kind hat ja
+  //    noch gar nicht "laufen lassen".
+  const programmFehler = pruefeKlammern() || pruefeLeereBloecke();
+  if (programmFehler) {
+    setzeMeldung(programmFehler, true);
     return;
   }
 
   // --- Vorbereitung ---
-  laeuft = true;
-  versuche++;                               // dieser Start zählt als Versuch
+  laeuft            = true;
+  abbruchGewuenscht = false;
+  schrittweise      = einzelschritt;
+  schrittGuthaben   = einzelschritt ? 1 : 0;  // 1. Schritt sofort ausführen
+  versuche++;                                 // dieser Start zählt als Versuch
+  versucheStand[aktuelleSchwierigkeit][aktuellesLevel] = versuche;
+  speichereEinstellungen();
+  versteckeCoach();                           // Coach hat seinen Job getan
+  einfuegeIndex = null;                       // Einfügemarke ausblenden
+  zeichneQueue();
   setzeEingabenAktiv(false);
   elQueue.classList.add('queue--laeuft');   // blendet die Lösch-Kreuze aus
   setzeKatzeAufStart();
@@ -990,7 +1151,7 @@ async function starteAusführung() {
   spurPfad   = [{ z: katzeZeile, s: katzeSpalte }];
   drehMarker = [];
   zeichneSpur();
-  setzeMeldung('Die Katze läuft… 🐾', false);
+  setzeMeldung(einzelschritt ? 'Schritt für Schritt… 🐾' : 'Die Katze läuft… 🐾', false);
 
   // Alle Blöcke einsammeln (für die Hervorhebung des aktiven Bausteins).
   queueBloecke = elQueue.querySelectorAll('.queue-block');
@@ -1007,12 +1168,50 @@ async function starteAusführung() {
     await levelGeschafft();
   } else if (status === 'fehler') {
     await fehlversuch(fehlerGrund);
+  } else if (status === 'abbruch') {
+    // ⏹ gedrückt: Katze ruhig zurück auf Start, kein Fehler-Drama.
+    setzeKatzeAufStart();
+    setzeMeldung('Gestoppt. Ändere dein Programm und starte neu! ⏹', false);
+    beendeAusführung();
   } else {
     // Alles abgearbeitet, aber Ziel nicht erreicht: Katze bleibt "ratlos"
     // stehen -> Fragezeichen als Visualisierung direkt auf dem Feld.
     zeigeMarker(katzeZeile, katzeSpalte, '❓');
     await fehlversuch('Ziel noch nicht erreicht 🎯');
   }
+}
+
+/**
+ * ⏹ Stopp: bricht den laufenden Programmlauf so schnell wie möglich ab.
+ * Wichtig gegen "gefangen sein": Lange Schleifen (bis zu 60 Runden) würden
+ * sonst bei langsamem Tempo alle Eingaben über eine Minute sperren.
+ */
+function stoppeAusfuehrung() {
+  if (!laeuft) return;
+  abbruchGewuenscht = true;
+  gibSchrittFrei();          // falls der Lauf gerade im Einzelschritt wartet
+}
+
+/** Gibt im Einzelschritt-Modus den nächsten Befehl frei (🐾-Knopf). */
+function gibSchrittFrei() {
+  if (schrittAufloeser) {
+    const aufloeser = schrittAufloeser;
+    schrittAufloeser = null;
+    aufloeser();
+  } else {
+    schrittGuthaben++;
+  }
+}
+
+/** Wartet im Einzelschritt-Modus, bis der nächste Schritt freigegeben ist. */
+function warteAufSchritt() {
+  if (!schrittweise || abbruchGewuenscht) return Promise.resolve();
+  if (schrittGuthaben > 0) {
+    schrittGuthaben--;
+    return Promise.resolve();
+  }
+  setzeMeldung('Pause – 🐾 für den nächsten Schritt', false);
+  return new Promise((aufloesen) => { schrittAufloeser = aufloesen; });
 }
 
 /**
@@ -1030,6 +1229,25 @@ function pruefeKlammern() {
     }
   }
   if (tiefe > 0) return 'Es fehlt noch eine schließende „)". 🧩';
+  return null;
+}
+
+/**
+ * Prüft VOR dem Start, ob eine Schleife oder Bedingung leer ist – also
+ * direkt hinter dem Öffner die „)" folgt. Früher fiel das erst während
+ * des Laufs auf und kostete unfairerweise einen 💡-Versuch.
+ */
+function pruefeLeereBloecke() {
+  const NAMEN = {
+    loop2: 'Wiederhol-Schleife', loop3: 'Wiederhol-Schleife',
+    loopZiel: '„bis Ziel"-Schleife', solangeFrei: '„solange frei"-Schleife',
+    wennFrei: '„wenn frei"-Bedingung', wennWand: '„wenn Wand"-Bedingung',
+  };
+  for (let i = 0; i < befehlsQueue.length; i++) {
+    if (OEFFNER.has(befehlsQueue[i]) && befehlsQueue[i + 1] === 'ende') {
+      return 'Die ' + NAMEN[befehlsQueue[i]] + ' ist leer. Lege Befehle hinein! 🧩';
+    }
+  }
   return null;
 }
 
@@ -1080,6 +1298,7 @@ function baueProgramm() {
  */
 async function fuehreProgramm(knoten) {
   for (const k of knoten) {
+    if (abbruchGewuenscht) return 'abbruch';  // ⏹ gedrückt
     const status = await fuehreKnoten(k);
     if (status !== 'weiter') return status;   // sofort nach oben durchreichen
   }
@@ -1093,6 +1312,8 @@ async function fuehreProgramm(knoten) {
 async function fuehreKnoten(k) {
   // --- einfacher Baustein (vor / links / rechts) ---
   if (k.art === 'simpel') {
+    await warteAufSchritt();                  // Einzelschritt-Modus: pausieren
+    if (abbruchGewuenscht) return 'abbruch';
     hebeBlockHervor(k.index);
     const ergebnis = fuehreBefehlAus(k.typ);
     zeichneKatze();
@@ -1302,26 +1523,33 @@ function fuehreBefehlAus(befehl) {
 function loescheSpur() {
   spurPfad   = [];
   drehMarker = [];
-  if (elSpur) elSpur.innerHTML = '';
+  if (elSpur)     elSpur.innerHTML = '';
+  if (elSpurDreh) elSpurDreh.innerHTML = '';
 }
 
-/** Baut das SVG-Overlay aus den aktuellen Spurdaten neu auf. */
+/** Baut die SVG-Overlays aus den aktuellen Spurdaten neu auf. */
 function zeichneSpur() {
   if (!elSpur) return;
   elSpur.innerHTML = '';
+  if (elSpurDreh) elSpurDreh.innerHTML = '';
 
   // In den Einstellungen abschaltbar.
-  elSpur.style.display = einstellungen.spurAnzeigen ? 'block' : 'none';
+  const anzeigen = einstellungen.spurAnzeigen ? 'block' : 'none';
+  elSpur.style.display = anzeigen;
+  if (elSpurDreh) elSpurDreh.style.display = anzeigen;
   if (!einstellungen.spurAnzeigen) return;
 
   const breite = elSpielfeld.clientWidth;
   const hoehe  = elSpielfeld.clientHeight;
   const { padding, gap, groesse } = zellenGeometrie();
 
-  // SVG an die Spielfeldgröße anpassen.
-  elSpur.setAttribute('width', breite);
-  elSpur.setAttribute('height', hoehe);
-  elSpur.setAttribute('viewBox', `0 0 ${breite} ${hoehe}`);
+  // Beide SVGs an die Spielfeldgröße anpassen.
+  for (const svg of [elSpur, elSpurDreh]) {
+    if (!svg) continue;
+    svg.setAttribute('width', breite);
+    svg.setAttribute('height', hoehe);
+    svg.setAttribute('viewBox', `0 0 ${breite} ${hoehe}`);
+  }
 
   // Mittelpunkt einer Zelle in Pixeln.
   const mitte = (idx) => padding + idx * (groesse + gap) + groesse / 2;
@@ -1347,14 +1575,24 @@ function zeichneSpur() {
   }
 
   // 3) Dreh-Symbole dort einblenden, wo die Katze abgebogen ist.
+  //    Sie liegen im OBEREN SVG (über der Katze) und werden bei mehreren
+  //    Drehungen auf demselben Feld leicht versetzt gestapelt, statt sich
+  //    deckungsgleich zu überlagern.
+  const proFeld = {};   // zählt Drehungen pro Feld für den Versatz
   drehMarker.forEach((m) => {
+    const key = m.z + ',' + m.s;
+    const nummer = proFeld[key] || 0;
+    proFeld[key] = nummer + 1;
+
     const text = document.createElementNS(SVG_NS, 'text');
-    text.setAttribute('x', mitte(m.s));
-    text.setAttribute('y', mitte(m.z));
+    // Versatz: 1. Drehung mittig, weitere wandern nach rechts unten.
+    const versatz = Math.min(nummer, 3) * groesse * 0.18;
+    text.setAttribute('x', mitte(m.s) + versatz);
+    text.setAttribute('y', mitte(m.z) + versatz * 0.6);
     text.setAttribute('class', 'spur__dreh');
     // ↰ = Linksdrehung, ↱ = Rechtsdrehung (gleiche Symbole wie die Buttons).
     text.textContent = (m.typ === 'links') ? '↰' : '↱';
-    elSpur.appendChild(text);
+    (elSpurDreh || elSpur).appendChild(text);
   });
 }
 
@@ -1367,21 +1605,43 @@ function zeichneSpur() {
    über der Katze und werden beim nächsten Start/Level wieder entfernt.
    -------------------------------------------------------------------------- */
 function zeigeMarker(zeile, spalte, emoji) {
+  const daten = { z: zeile, s: spalte, emoji, klein: false };
+  crashMarker.push(daten);
+  zeichneAlleMarker();
+  // Nach einem Moment schrumpft der Marker in die Ecke des Feldes, damit
+  // das Hindernis darunter (Hund/Pfütze) wieder sichtbar wird.
+  setTimeout(() => {
+    if (crashMarker.includes(daten)) {
+      daten.klein = true;
+      zeichneAlleMarker();
+    }
+  }, 1300);
+}
+
+/**
+ * Zeichnet alle gespeicherten Marker neu – wird auch bei Größenwechsel
+ * (Gerät drehen) aufgerufen, damit die Marker auf ihren Feldern bleiben.
+ */
+function zeichneAlleMarker() {
   if (!elSpielfeld) return;
+  elSpielfeld.querySelectorAll('.marker').forEach((m) => m.remove());
   const { padding, gap, groesse } = zellenGeometrie();
-  const el = document.createElement('div');
-  el.className = 'marker';
-  el.textContent = emoji;
-  el.style.width  = groesse + 'px';
-  el.style.height = groesse + 'px';
-  // Positionierung über left/top, damit 'transform' frei für die Pop-Animation bleibt.
-  el.style.left = (padding + spalte * (groesse + gap)) + 'px';
-  el.style.top  = (padding + zeile  * (groesse + gap)) + 'px';
-  elSpielfeld.appendChild(el);
+  for (const m of crashMarker) {
+    const el = document.createElement('div');
+    el.className = 'marker' + (m.klein ? ' marker--klein' : '');
+    el.textContent = m.emoji;
+    el.style.width  = groesse + 'px';
+    el.style.height = groesse + 'px';
+    // Positionierung über left/top, damit 'transform' frei für Animationen bleibt.
+    el.style.left = (padding + m.s * (groesse + gap)) + 'px';
+    el.style.top  = (padding + m.z * (groesse + gap)) + 'px';
+    elSpielfeld.appendChild(el);
+  }
 }
 
 /** Entfernt alle Crash-/Stopp-Markierungen vom Spielbrett. */
 function loescheMarker() {
+  crashMarker = [];
   if (!elSpielfeld) return;
   elSpielfeld.querySelectorAll('.marker').forEach((m) => m.remove());
 }
@@ -1397,11 +1657,28 @@ function setzeMeldung(text, istFehler) {
   elMeldung.classList.toggle('status__meldung--fehler', !!istFehler);
 }
 
-/** Sperrt/erlaubt alle Eingabe-Buttons während der Ausführung. */
+/**
+ * Sperrt/erlaubt die Eingabe-Buttons während der Ausführung.
+ * WICHTIG: Der Start-Knopf bleibt IMMER bedienbar – während des Laufs wird
+ * er zum ⏹-Stopp-Knopf, damit das Kind nie "gefangen" ist (z. B. in einer
+ * langen Schleife bei langsamem Tempo).
+ */
 function setzeEingabenAktiv(aktiv) {
   document.querySelectorAll('.aktion-btn').forEach((b) => (b.disabled = !aktiv));
-  elPlayBtn.disabled  = !aktiv;
   elResetBtn.disabled = !aktiv;
+
+  if (aktiv) {
+    elPlayBtn.textContent = '▶︎ Start';
+    elPlayBtn.classList.remove('steuer-btn--stopp');
+    elStepBtn.textContent = '🐾 1 Schritt';
+    elStepBtn.disabled = false;
+  } else {
+    elPlayBtn.textContent = '⏹ Stopp';
+    elPlayBtn.classList.add('steuer-btn--stopp');
+    // Im Einzelschritt-Modus gibt der 🐾-Knopf den nächsten Befehl frei.
+    elStepBtn.textContent = '🐾 Weiter';
+    elStepBtn.disabled = !schrittweise;
+  }
 }
 
 /**
@@ -1411,7 +1688,7 @@ function setzeEingabenAktiv(aktiv) {
  */
 async function fehlversuch(grund) {
   if (elKatze) elKatze.classList.add('katze--bonk');
-  setzeMeldung(grund + ' 🔁', true);   // kurz halten – das 💥/❓ auf dem Feld zeigt das WO
+  setzeMeldung(grund, true);   // kurz halten – das 💥/❓ auf dem Feld zeigt das WO
 
   await warte(1100); // Fehler-Moment (inkl. Markierung) kurz wahrnehmen lassen
 
@@ -1516,42 +1793,104 @@ function zeichneReihe(el, anzahl, vollSymbol, leerSymbol) {
   }
 }
 
+/**
+ * Kleine Feier direkt AUF dem Spielbrett (Konfetti-Emojis am Zielfeld),
+ * BEVOR das Overlay alles verdeckt – so sieht das Kind den schönen Moment
+ * "Katze sitzt beim Fisch" wirklich.
+ */
+function zeigeFeier(zeile, spalte) {
+  if (!elSpielfeld) return;
+  const { padding, gap, groesse } = zellenGeometrie();
+  const cx = padding + spalte * (groesse + gap) + groesse / 2;
+  const cy = padding + zeile  * (groesse + gap) + groesse / 2;
+  const teilchen = ['🎉', '✨', '💖', '⭐', '🎊', '✨'];
+  teilchen.forEach((emoji, i) => {
+    const el = document.createElement('div');
+    el.className = 'feier';
+    el.textContent = emoji;
+    el.style.left = cx + 'px';
+    el.style.top  = cy + 'px';
+    // Flugrichtung pro Teilchen (CSS-Variablen für die Animation).
+    const winkel = (i / teilchen.length) * Math.PI * 2;
+    el.style.setProperty('--fx', Math.cos(winkel) * groesse * 1.1 + 'px');
+    el.style.setProperty('--fy', Math.sin(winkel) * groesse * 1.1 - groesse * 0.4 + 'px');
+    elSpielfeld.appendChild(el);
+    setTimeout(() => el.remove(), 1400);
+  });
+}
+
 /** Die Katze hat das Ziel erreicht. */
 async function levelGeschafft() {
-  setzeMeldung('Super! ' + aktuellesZiel.i, false);
+  // Abwechslungsreiches Lob statt immer "Super!".
+  const lob = LOB[Math.floor(Math.random() * LOB.length)];
+  setzeMeldung(lob + ' ' + aktuellesZiel.i, false);
   spieleTon('sieg');
-  await warte(400);
+
+  // Erst kurz auf dem Brett feiern, DANN das Overlay zeigen.
+  zeigeFeier(katzeZeile, katzeSpalte);
+  await warte(1200);
 
   // --- Bewertung berechnen ---
   const minimum   = minimaleAktionen();
   const bausteine = befehlsQueue.length;
-  const sterne    = berechneSterne(bausteine, minimum);   // Effizienz (Code)
   const knobel    = berechneKnobel(versuche);             // gleich richtig?
+
+  // ⭐ Effizienz: Bausteine im Vergleich zum kürzesten Weg. Wer SCHLEIFEN
+  // benutzt, bekommt einen Bonus-Stern (Schleifen kosten 2 Bausteine
+  // "Klammer-Overhead" – der Bonus macht das mehr als wett und belohnt
+  // echtes Programmieren).
+  const nutztSchleifen = befehlsQueue.some((t) => OEFFNER.has(t));
+  let sterne = berechneSterne(bausteine, minimum);
+  let bonusText = '';
+  if (nutztSchleifen && sterne === 2) {
+    sterne = 3;
+    bonusText = ' 🔁 Schleifen-Bonus: +1 ⭐!';
+  }
 
   // Zwei beschriftete Reihen: ⭐ "Kurzer Code", 💡 "Wenig Versuche".
   zeichneReihe(elSterne, sterne, '★', '☆');
   zeichneReihe(elKnobel, knobel, '💡', '💡');
 
-  // Erklärte Zahlen in einfachen Wörtern (statt kryptischer Icons).
-  const codeText = (bausteine <= minimum)
-    ? 'Dein Code: ' + bausteine + ' Bausteine – kürzer geht es nicht!'
-    : 'Dein Code: ' + bausteine + ' Bausteine. Es geht auch mit ' + minimum + '!';
+  // Erklärte Zahlen in einfachen Wörtern. WICHTIG: 'minimum' zählt
+  // SCHRITTE & DREHUNGEN (den kürzesten Weg), nicht Bausteine – mit
+  // Schleifen kann der Code sogar kürzer sein als der Weg.
+  let codeText;
+  if (bausteine < minimum) {
+    codeText = 'Dein Code: nur ' + bausteine + ' Bausteine für ' + minimum +
+               ' Schritte – Schleifen-Magie! 🤯';
+  } else if (bausteine <= minimum) {
+    codeText = 'Dein Code: ' + bausteine + ' Bausteine – kürzer geht es nicht!';
+  } else {
+    codeText = 'Dein Code: ' + bausteine + ' Bausteine · kürzester Weg: ' +
+               minimum + ' Schritte & Drehungen.';
+  }
   const versuchText = (versuche === 1)
     ? 'Gleich beim 1. Versuch! 🎉'
     : 'Das war Versuch Nr. ' + versuche + '.';
-  elBewertung.textContent = codeText + ' ' + versuchText;
+  elBewertung.textContent = codeText + bonusText + ' ' + versuchText;
 
-  // Beste Sterne-Zahl für die Level-Auswahl merken und speichern.
-  const bisher = bestSterne[aktuelleSchwierigkeit][aktuellesLevel] || 0;
-  bestSterne[aktuelleSchwierigkeit][aktuellesLevel] = Math.max(bisher, sterne);
+  // Beste Sterne- und 💡-Zahl für die Level-Auswahl merken und speichern.
+  const bisherS = bestSterne[aktuelleSchwierigkeit][aktuellesLevel] || 0;
+  bestSterne[aktuelleSchwierigkeit][aktuellesLevel] = Math.max(bisherS, sterne);
+  const bisherK = bestKnobel[aktuelleSchwierigkeit][aktuellesLevel] || 0;
+  bestKnobel[aktuelleSchwierigkeit][aktuellesLevel] = Math.max(bisherK, knobel);
   speichereEinstellungen();
+
+  // Der Coach ist fertig, sobald das erste Level geschafft ist.
+  if (!tutorialGesehen) {
+    tutorialGesehen = true;
+    versteckeCoach();
+    speichereEinstellungen();
+  }
 
   // Haupttext (kurz, mit Ziel-Emoji) + Buttons.
   const istLetzteStufe = (aktuelleSchwierigkeit === 'schwer');
   const istLetztes = aktuellesLevel >= aktuelleLevels().length - 1;
   if (istLetztes && istLetzteStufe) {
     elOverlayText.textContent = 'Wow! Alles geschafft! 🏆';
-    elWeiterBtn.textContent = 'Nochmal 🔁';
+    // Bewusst NICHT "Nochmal" – das hieße sonst dasselbe wie der
+    // Nochmal-Button daneben, würde aber etwas ganz anderes tun.
+    elWeiterBtn.textContent = 'Von vorn 🏁';
   } else if (istLetztes) {
     elOverlayText.textContent = 'Stufe geschafft! Weiter geht’s 💪';
     elWeiterBtn.textContent = 'Weiter ➜';
@@ -1575,8 +1914,11 @@ async function levelGeschafft() {
 function nochmalVersuchen() {
   versteckeOverlay(elOverlay);
   befehlsQueue = [];        // altes Programm verschwindet
+  einfuegeIndex = null;
   zeichneQueue();
   versuche = 0;             // Versuchszähler frisch – volle 💡 wieder möglich
+  versucheStand[aktuelleSchwierigkeit][aktuellesLevel] = 0;
+  speichereEinstellungen();
   loescheSpur();
   loescheMarker();
   setzeKatzeAufStart();
@@ -1585,7 +1927,11 @@ function nochmalVersuchen() {
 
 /** Gemeinsamer Abschluss von Sieg und Fehlversuch: Sperren aufheben. */
 function beendeAusführung() {
-  laeuft = false;
+  laeuft            = false;
+  schrittweise      = false;
+  schrittGuthaben   = 0;
+  schrittAufloeser  = null;
+  abbruchGewuenscht = false;
   setzeEingabenAktiv(true);
   elQueue.classList.remove('queue--laeuft');
   elQueue.querySelectorAll('.queue-block--aktiv, .queue-block--bereich')
@@ -1605,19 +1951,19 @@ function naechstesLevel() {
     aktuellesLevel++;                       // einfach nächstes Level
   } else if (aktuelleSchwierigkeit === 'leicht') {
     aktuelleSchwierigkeit = 'mittel';       // Stufe rauf
-    aktuellesLevel = 0;
+    aktuellesLevel = levelStand.mittel;     // dort weiter, wo man ggf. war
     aktualisiereEinstellungsUI();
-    speichereEinstellungen();
   } else if (aktuelleSchwierigkeit === 'mittel') {
     aktuelleSchwierigkeit = 'schwer';       // Stufe rauf
-    aktuellesLevel = 0;
+    aktuellesLevel = levelStand.schwer;
     aktualisiereEinstellungsUI();
-    speichereEinstellungen();
   } else {
     aktuellesLevel = 0;                     // schwer bleibt schwer (von vorn)
   }
+  levelStand[aktuelleSchwierigkeit] = aktuellesLevel;
 
   befehlsQueue = [];   // neues Level = leere Warteschlange
+  einfuegeIndex = null;
   zeichneQueue();
   ladeLevel(aktuellesLevel);
   speichereEinstellungen();   // Fortschritt merken (weiter beim nächsten Mal)
@@ -1655,16 +2001,25 @@ function ladeEinstellungen() {
     if (daten.tempo && TEMPO_DELAY[daten.tempo]) {
       einstellungen.tempo = daten.tempo;
     }
-    // Fortschritt: bei welchem Level ging es zuletzt weiter?
-    if (Number.isInteger(daten.level) &&
-        daten.level >= 0 && daten.level < aktuelleLevels().length) {
-      aktuellesLevel = daten.level;
-    }
-    // Beste Sterne pro Level (für die Level-Auswahl).
-    if (daten.bestSterne && typeof daten.bestSterne === 'object') {
+    // Fortschritt PRO Stufe: bei welchem Level ging es zuletzt weiter?
+    if (daten.levelStand && typeof daten.levelStand === 'object') {
       for (const stufe of ['leicht', 'mittel', 'schwer']) {
-        if (daten.bestSterne[stufe]) bestSterne[stufe] = daten.bestSterne[stufe];
+        const n = daten.levelStand[stufe];
+        if (Number.isInteger(n) && n >= 0 && n < SCHWIERIGKEITEN[stufe].levels.length) {
+          levelStand[stufe] = n;
+        }
       }
+    } else if (Number.isInteger(daten.level) &&
+        daten.level >= 0 && daten.level < aktuelleLevels().length) {
+      // Migration alter Speicherstände (nur EIN globaler Levelstand).
+      levelStand[aktuelleSchwierigkeit] = daten.level;
+    }
+    aktuellesLevel = levelStand[aktuelleSchwierigkeit];
+    // Beste Sterne/💡 und Versuche pro Level (für Level-Auswahl & Bewertung).
+    for (const stufe of ['leicht', 'mittel', 'schwer']) {
+      if (daten.bestSterne && daten.bestSterne[stufe])   bestSterne[stufe]   = daten.bestSterne[stufe];
+      if (daten.bestKnobel && daten.bestKnobel[stufe])   bestKnobel[stufe]   = daten.bestKnobel[stufe];
+      if (daten.versucheStand && daten.versucheStand[stufe]) versucheStand[stufe] = daten.versucheStand[stufe];
     }
     if (daten.tutorialGesehen === true) tutorialGesehen = true;
   } catch (e) {
@@ -1677,12 +2032,14 @@ function speichereEinstellungen() {
   try {
     localStorage.setItem(SPEICHER_KEY, JSON.stringify({
       schwierigkeit:   aktuelleSchwierigkeit,
-      level:           aktuellesLevel,
+      levelStand:      levelStand,
       spurAnzeigen:    einstellungen.spurAnzeigen,
       profiModus:      einstellungen.profiModus,
       tonAn:           einstellungen.tonAn,
       tempo:           einstellungen.tempo,
       bestSterne:      bestSterne,
+      bestKnobel:      bestKnobel,
+      versucheStand:   versucheStand,
       tutorialGesehen: tutorialGesehen,
     }));
   } catch (e) { /* still ignorieren */ }
@@ -1705,6 +2062,8 @@ function aktualisiereEinstellungsUI() {
   });
   // Profi-Baustein-Reihe passend zum Modus ein-/ausblenden.
   elProfiAktionen.hidden = !einstellungen.profiModus;
+  if (elProfiWrap) elProfiWrap.hidden = !einstellungen.profiModus;
+  requestAnimationFrame(aktualisiereProfiFade);   // Wisch-Hinweis prüfen
   // Farbpunkt der Level-Anzeige an die Schwierigkeit anpassen.
   elLevel.style.setProperty('--schwierigkeit-farbe',
     SCHWIERIGKEITEN[aktuelleSchwierigkeit].farbe);
@@ -1718,7 +2077,10 @@ function aktualisiereEinstellungsUI() {
 function setzeProfiModus(an) {
   einstellungen.profiModus = an;
   elProfiAktionen.hidden = !an;
+  if (elProfiWrap) elProfiWrap.hidden = !an;
+  requestAnimationFrame(aktualisiereProfiFade);
   befehlsQueue = [];
+  einfuegeIndex = null;
   zeichneQueue();
   loescheSpur();
   loescheMarker();
@@ -1727,12 +2089,18 @@ function setzeProfiModus(an) {
   setzeMeldung(an ? 'Profi-Modus an 🧠' : 'Profi-Modus aus ✨', false);
 }
 
-/** Wechselt die Schwierigkeit und startet bei Level 1 der neuen Stufe. */
-function setzeSchwierigkeit(stufe) {
+/**
+ * Wechselt die Schwierigkeit. Es geht dort weiter, wo man in dieser Stufe
+ * zuletzt war – ein kurzer Ausflug in eine andere Stufe kostet also keinen
+ * Fortschritt mehr.
+ */
+function setzeSchwierigkeit(stufe, levelIndex = null) {
   if (!SCHWIERIGKEITEN[stufe]) return;
   aktuelleSchwierigkeit = stufe;
-  aktuellesLevel = 0;
+  if (levelIndex !== null) levelStand[stufe] = levelIndex;
+  aktuellesLevel = levelStand[stufe] || 0;
   befehlsQueue = [];
+  einfuegeIndex = null;
   zeichneQueue();
   aktualisiereEinstellungsUI();
   speichereEinstellungen();
@@ -1743,6 +2111,10 @@ function setzeSchwierigkeit(stufe) {
 function zeigeOverlay(el) {
   el.classList.add('overlay--sichtbar');
   el.setAttribute('aria-hidden', 'false');
+  // Barrierefreiheit: Fokus in das Fenster holen (erster Knopf),
+  // damit Tastatur-Nutzer nicht "draußen" weitertippen.
+  const erster = el.querySelector('button');
+  if (erster) erster.focus();
 }
 function versteckeOverlay(el) {
   el.classList.remove('overlay--sichtbar');
@@ -1758,39 +2130,59 @@ function versteckeOverlay(el) {
    -------------------------------------------------------------------------- */
 function oeffneLevelWahl() {
   if (laeuft) return;             // nicht mitten im Lauf öffnen
+  levelWahlStufe = aktuelleSchwierigkeit;   // Tabs starten bei der eigenen Stufe
   zeichneLevelWahl();
   zeigeOverlay(elLevelWahl);
 }
 
 function zeichneLevelWahl() {
+  // --- Stufen-Tabs (Leicht/Mittel/Schwer) direkt im Dialog ---
+  elLevelWahlTabs.innerHTML = '';
+  for (const stufe of ['leicht', 'mittel', 'schwer']) {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'levelwahl-tab' +
+      (stufe === levelWahlStufe ? ' levelwahl-tab--aktiv' : '');
+    tab.style.setProperty('--tab-farbe', SCHWIERIGKEITEN[stufe].farbe);
+    tab.textContent = SCHWIERIGKEITEN[stufe].label;
+    tab.addEventListener('click', () => {
+      levelWahlStufe = stufe;
+      zeichneLevelWahl();          // Grid für die gewählte Stufe neu aufbauen
+    });
+    elLevelWahlTabs.appendChild(tab);
+  }
+
+  // --- Level-Knöpfe der angezeigten Stufe ---
   elLevelWahlGrid.innerHTML = '';
-  const anzahl = aktuelleLevels().length;
+  const anzahl = SCHWIERIGKEITEN[levelWahlStufe].levels.length;
 
   for (let i = 0; i < anzahl; i++) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'levelwahl-btn' +
-      (i === aktuellesLevel ? ' levelwahl-btn--aktiv' : '');
+      (levelWahlStufe === aktuelleSchwierigkeit && i === aktuellesLevel
+        ? ' levelwahl-btn--aktiv' : '');
 
     // Level-Nummer …
     const nummer = document.createElement('span');
     nummer.textContent = i + 1;
     btn.appendChild(nummer);
 
-    // … und darunter die beste Sterne-Zahl (falls schon gelöst).
-    const beste = bestSterne[aktuelleSchwierigkeit][i] || 0;
-    const sterneEl = document.createElement('span');
-    sterneEl.className = 'levelwahl-btn__sterne';
-    sterneEl.textContent = beste > 0 ? '★'.repeat(beste) : '·';
-    btn.appendChild(sterneEl);
+    // … darunter beste Sterne UND beste 💡-Zahl (falls schon gelöst).
+    const besteS = bestSterne[levelWahlStufe][i] || 0;
+    const besteK = bestKnobel[levelWahlStufe][i] || 0;
+    const wertungEl = document.createElement('span');
+    wertungEl.className = 'levelwahl-btn__sterne';
+    wertungEl.textContent = besteS > 0
+      ? '★'.repeat(besteS) + (besteK > 0 ? ' 💡' + besteK : '')
+      : '·';
+    btn.appendChild(wertungEl);
 
     btn.addEventListener('click', () => {
-      aktuellesLevel = i;
-      befehlsQueue = [];          // gewähltes Level startet frisch
-      zeichneQueue();
       versteckeOverlay(elLevelWahl);
-      ladeLevel(i);
-      speichereEinstellungen();   // Fortschritt merken
+      // setzeSchwierigkeit übernimmt auch den reinen Levelwechsel und
+      // merkt sich den Stand pro Stufe.
+      setzeSchwierigkeit(levelWahlStufe, i);
     });
 
     elLevelWahlGrid.appendChild(btn);
@@ -1798,11 +2190,44 @@ function zeichneLevelWahl() {
 }
 
 /* --------------------------------------------------------------------------
-   TUTORIAL  ·  wird nur beim allerersten Öffnen des Spiels gezeigt
+   TUTORIAL & COACH  ·  nur beim allerersten Öffnen des Spiels
+   --------------------------------------------------------------------------
+   Erst ein kurzes "Hallo"-Fenster, danach führt eine kleine Coach-
+   Sprechblase INTERAKTIV durch das erste Level:
+     Schritt 1: "Tippe Befehle"  (Aktions-Buttons pulsieren)
+     Schritt 2: "Drücke ▶ Start" (Start-Button pulsiert)
+   Der Coach verschwindet beim Start; nach dem ersten Sieg ist das
+   Tutorial dauerhaft erledigt.
    -------------------------------------------------------------------------- */
 function zeigeTutorialFallsNoetig() {
   if (tutorialGesehen) return;
   zeigeOverlay(elTutorial);
+}
+
+/** Zeigt die Coach-Blase mit Text und lässt das Ziel-Element pulsieren. */
+function zeigeCoach(text, zielSelektor) {
+  coachSchritt = zielSelektor === '.aktionen' ? 1 : 2;
+  elCoach.textContent = text;
+  elCoach.hidden = false;
+  document.querySelectorAll('.coach-puls')
+    .forEach((el) => el.classList.remove('coach-puls'));
+  const ziel = document.querySelector(zielSelektor);
+  if (ziel) ziel.classList.add('coach-puls');
+}
+
+/** Blendet den Coach samt Puls-Markierung aus. */
+function versteckeCoach() {
+  coachSchritt = 0;
+  if (elCoach) elCoach.hidden = true;
+  document.querySelectorAll('.coach-puls')
+    .forEach((el) => el.classList.remove('coach-puls'));
+}
+
+/** Wird nach jedem gelegten Befehl gerufen: schaltet den Coach weiter. */
+function coachBefehlGelegt() {
+  if (coachSchritt === 1 && befehlsQueue.length >= 1) {
+    zeigeCoach('Toll! Leg noch mehr Befehle – und drücke dann ▶ Start!', '#playBtn');
+  }
 }
 
 
@@ -1811,23 +2236,61 @@ function zeigeTutorialFallsNoetig() {
    -------------------------------------------------------------------------- */
 
 function verbindeButtons() {
+  // iOS/Safari: Ton beim allerersten Tippen entsperren (siehe entsperreAudio).
+  document.addEventListener('pointerdown', entsperreAudio, { once: true });
+
   // Aktions-Buttons: jeder fügt seinen Befehl zur Queue hinzu.
   document.querySelectorAll('.aktion-btn').forEach((btn) => {
     btn.addEventListener('click', () => fuegeBefehlHinzu(btn.dataset.aktion));
   });
 
-  // Start-Button startet die Ausführung.
-  elPlayBtn.addEventListener('click', starteAusführung);
+  // Start-Button: startet die Ausführung – bzw. STOPPT sie während des Laufs.
+  elPlayBtn.addEventListener('click', () => {
+    if (laeuft) stoppeAusfuehrung();
+    else starteAusführung(false);
+  });
+
+  // 🐾-Schritt-Button: startet im Einzelschritt-Modus bzw. gibt den
+  // nächsten Befehl frei (kleiner "Debugger" zum Nachvollziehen).
+  elStepBtn.addEventListener('click', () => {
+    if (!laeuft) starteAusführung(true);
+    else if (schrittweise) gibSchrittFrei();
+  });
 
   // Reset/Löschen: Queue leeren, Katze auf Start, Spur löschen.
   elResetBtn.addEventListener('click', () => {
     if (laeuft) return;
     befehlsQueue = [];
+    einfuegeIndex = null;
     zeichneQueue();
     loescheSpur();
     loescheMarker();
     setzeKatzeAufStart();
     setzeMeldung('Gelöscht ✨', false);
+  });
+
+  // --- Tastatur (für Desktop): Pfeile = Befehle, Enter = Start,
+  //     Backspace = letzten Block löschen, Escape = Stopp/Fenster zu. ---
+  document.addEventListener('keydown', (e) => {
+    // Escape wirkt immer: Lauf stoppen oder offene Fenster schließen.
+    if (e.key === 'Escape') {
+      if (laeuft) { stoppeAusfuehrung(); return; }
+      versteckeOverlay(elSettingsOverlay);
+      versteckeOverlay(elLevelWahl);
+      return;
+    }
+    // Übrige Tasten nur, wenn kein Overlay offen ist und nichts läuft.
+    const overlayOffen = document.querySelector('.overlay--sichtbar');
+    if (overlayOffen || laeuft) return;
+
+    if (e.key === 'ArrowUp')         { e.preventDefault(); fuegeBefehlHinzu('vor'); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); fuegeBefehlHinzu('links'); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); fuegeBefehlHinzu('rechts'); }
+    else if (e.key === 'Enter')      { e.preventDefault(); starteAusführung(false); }
+    else if (e.key === 'Backspace' && befehlsQueue.length > 0) {
+      e.preventDefault();
+      loescheBefehl(befehlsQueue.length - 1);
+    }
   });
 
   // "Weiter" im Gewinn-Overlay -> nächstes Level.
@@ -1890,12 +2353,56 @@ function verbindeButtons() {
     if (e.target === elLevelWahl) versteckeOverlay(elLevelWahl);
   });
 
-  // Tutorial-Button ("Los geht's!") schließt das Tutorial dauerhaft.
+  // Tutorial-Button ("Los geht's!") schließt das Hallo-Fenster und startet
+  // den interaktiven Coach (dauerhaft erledigt erst nach dem ersten Sieg).
   elTutorialBtn.addEventListener('click', () => {
-    tutorialGesehen = true;
-    speichereEinstellungen();
     versteckeOverlay(elTutorial);
+    zeigeCoach('Tippe ein paar Befehle: ⬆️ ↰ ↱', '.aktionen');
   });
+
+  // 📲 PWA-Installieren-Button in den Einstellungen: Der Browser meldet
+  // per 'beforeinstallprompt', DASS installiert werden kann – erst dann
+  // wird der Button eingeblendet.
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installPromptEvent = e;
+    elInstallBtn.hidden = false;
+    elInstallHinweis.hidden = true;
+  });
+  elInstallBtn.addEventListener('click', async () => {
+    if (!installPromptEvent) return;
+    installPromptEvent.prompt();
+    await installPromptEvent.userChoice;
+    installPromptEvent = null;
+    elInstallBtn.hidden = true;
+  });
+  window.addEventListener('appinstalled', () => {
+    installPromptEvent = null;
+    elInstallBtn.hidden = true;
+    elInstallHinweis.hidden = true;
+    setzeMeldung('Als App installiert 📲✨', false);
+  });
+  // iPhone/iPad kennen 'beforeinstallprompt' nicht – dort stattdessen
+  // eine kurze Anleitung zeigen (Teilen-Menü -> "Zum Home-Bildschirm").
+  const istIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const istInstalliert = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (istIOS && !istInstalliert) elInstallHinweis.hidden = false;
+
+  // Profi-Chip-Leiste: rechts andeuten, dass man wischen kann (Fade + ›).
+  elProfiAktionen.addEventListener('scroll', aktualisiereProfiFade);
+}
+
+/**
+ * Zeigt am rechten Rand der Profi-Leiste einen Farbverlauf + Pfeil,
+ * solange dort noch weitere Bausteine "versteckt" sind. Ohne diesen
+ * Hinweis ist auf Touch-Geräten nicht erkennbar, dass man wischen kann.
+ */
+function aktualisiereProfiFade() {
+  if (!elProfiWrap) return;
+  const mehrRechts = elProfiAktionen.scrollLeft + elProfiAktionen.clientWidth
+    < elProfiAktionen.scrollWidth - 4;
+  elProfiWrap.classList.toggle('profi-wrap--mehr', mehrRechts);
 }
 
 /**
@@ -1904,9 +2411,26 @@ function verbindeButtons() {
  */
 function beobachteGroessenwechsel() {
   window.addEventListener('resize', () => {
+    passeSpielfeldGroesseAn();  // Brett bleibt quadratisch im freien Platz
     zeichneKatze();
     zeichneSpur();
+    zeichneAlleMarker();        // 💥/❓ müssen auf ihren Feldern bleiben
+    aktualisiereProfiFade();
   });
+}
+
+/**
+ * Service Worker registrieren: macht das Spiel offline spielbar und
+ * (zusammen mit manifest.webmanifest) als App installierbar.
+ * Bei file:// gibt es keine Service Worker – dann läuft das Spiel
+ * einfach wie bisher ohne.
+ */
+function registriereServiceWorker() {
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      /* Registrierung fehlgeschlagen – Spiel funktioniert trotzdem. */
+    });
+  }
 }
 
 // --- Spiel initialisieren ---
@@ -1914,5 +2438,6 @@ ladeEinstellungen();          // Einstellungen + Fortschritt wiederherstellen
 verbindeButtons();
 aktualisiereEinstellungsUI();
 beobachteGroessenwechsel();
+registriereServiceWorker();   // PWA: offline + installierbar
 ladeLevel(aktuellesLevel);    // beim gemerkten Level weitermachen
 zeigeTutorialFallsNoetig();   // kleines Tutorial nur beim allerersten Start
