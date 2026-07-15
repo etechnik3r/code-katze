@@ -231,6 +231,29 @@ body {
   background: var(--farbe-ziel);
 }
 
+/* Sammelobjekt-Feld: leicht violett, damit es als "wichtig" auffällt */
+.zelle--sammel { background: #f3eefe; }
+.zelle--gesammelt { background: var(--farbe-zelle); }
+
+/* Zielfeld blinkt kurz, wenn das Programm endete, ohne anzukommen */
+.zelle--blink { animation: zielBlinken 0.8s ease 3; }
+@keyframes zielBlinken {
+  0%, 100% { box-shadow: none; }
+  50%      { box-shadow: 0 0 0 4px #ffc93c inset, 0 0 12px 2px #ffc93c; }
+}
+
+/* NEBEL-LEVEL: verdeckte Felder zeigen nur eine Wolke. font-size:0 blendet
+   den Emoji-Inhalt aus (color:transparent würde bei Emojis nicht wirken). */
+.zelle--nebel {
+  background: #e3e0ec;
+  font-size: 0;
+}
+.zelle--nebel::after {
+  content: "☁️";
+  font-size: clamp(14px, 5vw, 26px);
+  opacity: 0.55;
+}
+
 /* --------------------------------------------------------------------------
    SPUR-OVERLAY: eine SVG-Ebene über den Zellen, aber UNTER der Katze.
    Zeichnet die gelaufene Linie und die Dreh-Symbole. (per JS befüllt)
@@ -491,14 +514,18 @@ body {
 }
 
 .aktion-btn__icon { font-size: clamp(1.5rem, 6.5vw, 2rem); line-height: 1; }
-.aktion-btn__text { font-size: clamp(0.85rem, 3.6vw, 1.05rem); }
+.aktion-btn__text { font-size: clamp(0.78rem, 3.3vw, 1rem); white-space: nowrap; }
 
-/* Dreh-Symbole (↰ ↱) sind Text-Glyphen – kräftig und groß darstellen */
+/* Dreh-Symbole (↺ ↻) sind Text-Glyphen – kräftig und groß darstellen.
+   Beim Tippen drehen sie sich kurz in ihre Richtung (kleine Lernhilfe). */
 .aktion-btn__icon--dreh {
   font-size: clamp(1.9rem, 8vw, 2.5rem);
   font-weight: 800;
   color: var(--farbe-akzent-d);
+  transition: transform 0.15s ease;
 }
+.aktion-btn:active .aktion-btn__icon--dreh-l { transform: rotate(-40deg); }
+.aktion-btn:active .aktion-btn__icon--dreh-r { transform: rotate(40deg); }
 
 /* Gedrückt-Zustand statt Hover (touch-freundlich) */
 .aktion-btn:active {
@@ -514,23 +541,31 @@ body {
 }
 .profi-wrap[hidden] { display: none; }
 .profi-wrap::after {
-  content: "›";
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
   bottom: 4px;
   width: 44px;
   display: none;                 /* nur sichtbar mit .profi-wrap--mehr */
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 8px;
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #8a63d2;
-  background: linear-gradient(to right, transparent, var(--farbe-bg) 70%);
+  background: linear-gradient(to right, transparent, var(--farbe-bg) 75%);
   pointer-events: none;          /* nur Optik – Wischen geht durch */
 }
-.profi-wrap--mehr::after { display: flex; }
+.profi-wrap--mehr::after { display: block; }
+/* … und links dasselbe, wenn nach dem Wischen Chips "hinten" liegen */
+.profi-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 4px;
+  width: 36px;
+  z-index: 1;
+  display: none;
+  background: linear-gradient(to left, transparent, var(--farbe-bg) 75%);
+  pointer-events: none;
+}
+.profi-wrap--links::before { display: block; }
 
 /* --- Profi-Bausteine: EINE seitlich wischbare Chip-Leiste ---
    So bleibt das Spielfeld groß, egal wie viele Bausteine es gibt. */
@@ -560,10 +595,15 @@ body {
 .aktion-btn--logik:active { border-color: #8a63d2; }
 .aktion-btn--logik .aktion-btn__text { color: #6a44b8; font-weight: 800; }
 
-/* Schließende Klammer optisch abgesetzt */
+/* Schließende Klammer optisch abgesetzt – und am rechten Rand ANGEPINNT,
+   damit sie beim Wischen immer erreichbar bleibt (jede Schleife braucht sie) */
 .aktion-btn--klammer {
   border-color: #c9b8f0;
   background: #ece4fb;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.10);
 }
 .aktion-btn--klammer .aktion-btn__icon { color: #6a44b8; font-weight: 800; }
 
@@ -588,12 +628,51 @@ body {
   align-content: flex-start;
   gap: 7px;
   min-height: 56px;
-  max-height: 18vh;         /* bei sehr vielen Befehlen: scrollen statt wachsen */
+  max-height: 20vh;         /* bei sehr vielen Befehlen: scrollen statt wachsen */
   overflow-y: auto;
   padding: 7px;
   background: var(--farbe-panel);
   border-radius: var(--radius);
   box-shadow: var(--schatten);
+}
+
+/* Scroll-Hinweis: Fade + ⌄ am unteren Queue-Rand, solange dort weitere
+   Befehls-Zeilen versteckt sind (per JS-Klasse .queue-bereich--mehr). */
+.queue-bereich { position: relative; }
+.queue-bereich::after {
+  content: "⌄";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--farbe-akzent-d);
+  background: linear-gradient(to bottom, transparent, var(--farbe-panel) 80%);
+  border-radius: 0 0 var(--radius) var(--radius);
+  pointer-events: none;
+}
+.queue-bereich--mehr::after { display: flex; }
+
+/* Budget-Anzeige neben "Dein Programm:" (nur in Budget-Leveln sichtbar) */
+.queue-budget {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3eefe;
+  border: 1px solid #c9b8f0;
+  color: #6a44b8;
+  font-size: 0.85em;
+}
+.queue-budget--voll {
+  background: #fdeaea;
+  border-color: var(--schwer);
+  color: var(--schwer);
 }
 
 .queue__leer {
@@ -942,8 +1021,8 @@ body {
 
 .setting-hinweis {
   margin-top: 6px;
-  font-size: 0.76rem;
-  color: #8a869a;
+  font-size: 0.8rem;
+  color: #6f6a80;    /* dunkler als früher – besser lesbar */
 }
 
 /* --- Schwierigkeitsauswahl (drei farbige Karten) --- */
@@ -1078,6 +1157,10 @@ body {
 }
 .levelwahl-tab {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   padding: 8px 4px;
   background: var(--farbe-bg);
   border: 3px solid transparent;
@@ -1087,6 +1170,12 @@ body {
   font-weight: 800;
   font-size: 0.95rem;
   color: var(--tab-farbe, var(--farbe-text));
+}
+/* Gesammelte Sterne der Stufe (z. B. "★ 12/66") */
+.levelwahl-tab__sterne {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #a68a2a;
 }
 .levelwahl-tab--aktiv {
   border-color: var(--tab-farbe, var(--farbe-akzent));
@@ -1153,7 +1242,7 @@ body {
 .coach {
   position: fixed;
   left: 50%;
-  bottom: 86px;                     /* über der Steuerleiste */
+  bottom: 138px;                    /* über Queue-Label und Steuerleiste */
   transform: translateX(-50%);
   z-index: 40;
   max-width: min(88vw, 420px);
@@ -1230,6 +1319,16 @@ body {
     margin-left: auto;
     margin-right: auto;
   }
+
+  /* Mit Maus lässt sich schlecht "wischen": Profi-Chips brechen am
+     Desktop einfach in eine zweite Zeile um. */
+  .aktionen--profi {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .aktionen--profi .aktion-btn--klammer { position: static; box-shadow: var(--schatten); }
+  .profi-wrap::after,
+  .profi-wrap::before { display: none !important; }
 }
 
 /* Sehr schmale Geräte (~320px): Schrift der drei Fuß-Knöpfe verkleinern,
