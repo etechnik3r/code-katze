@@ -66,7 +66,7 @@
   -->
   <section class="status">
     <!-- Die Level-Anzeige ist antippbar und öffnet die Level-Auswahl. -->
-    <button id="levelAnzeige" class="status__level" type="button">Leicht · 1/20</button>
+    <button id="levelAnzeige" class="status__level" type="button">Leicht · 1</button>
     <!-- aria-live: Vorlese-Hilfen (Screenreader) sagen Meldungen mit an. -->
     <span id="meldung" class="status__meldung" aria-live="polite">Tippe Befehle, dann ▶︎</span>
   </section>
@@ -89,18 +89,19 @@
     data-aktion enthält den Befehlstyp, den game.js auswertet.
   -->
   <section class="aktionen" aria-label="Aktionen">
-    <button class="aktion-btn" data-aktion="vor"   type="button">
+    <button class="aktion-btn" data-aktion="vor"   type="button" aria-label="Ein Schritt vor">
       <span class="aktion-btn__icon">⬆️</span>
       <span class="aktion-btn__text">Schritt</span>
     </button>
-    <!-- ↰ = Vierteldrehung nach links, ↱ = Vierteldrehung nach rechts -->
-    <button class="aktion-btn" data-aktion="links" type="button">
-      <span class="aktion-btn__icon aktion-btn__icon--dreh">↰</span>
-      <span class="aktion-btn__text">Links</span>
+    <!-- ↺/↻ = ROTATIONS-Pfeile (auf der Stelle drehen). Bewusst keine
+         Abbiege-Pfeile (↰/↱) – die sähen aus wie "gehe nach links". -->
+    <button class="aktion-btn" data-aktion="links" type="button" aria-label="Nach links drehen">
+      <span class="aktion-btn__icon aktion-btn__icon--dreh aktion-btn__icon--dreh-l">↺</span>
+      <span class="aktion-btn__text">Links drehen</span>
     </button>
-    <button class="aktion-btn" data-aktion="rechts" type="button">
-      <span class="aktion-btn__icon aktion-btn__icon--dreh">↱</span>
-      <span class="aktion-btn__text">Rechts</span>
+    <button class="aktion-btn" data-aktion="rechts" type="button" aria-label="Nach rechts drehen">
+      <span class="aktion-btn__icon aktion-btn__icon--dreh aktion-btn__icon--dreh-r">↻</span>
+      <span class="aktion-btn__text">Rechts drehen</span>
     </button>
   </section>
 
@@ -153,7 +154,8 @@
     auf den Block selbst setzt eine Einfügemarke (neue Befehle landen davor).
   -->
   <section class="queue-bereich" aria-label="Befehls-Warteschlange">
-    <div class="queue-bereich__label">Dein Programm:</div>
+    <div class="queue-bereich__label">Dein Programm:
+      <span id="queueBudget" class="queue-budget" hidden></span></div>
     <div id="queue" class="queue">
       <!-- Platzhalter, solange noch kein Befehl gelegt wurde -->
       <span id="queueLeer" class="queue__leer">Noch keine Befehle…</span>
@@ -184,7 +186,7 @@
     COACH-SPRECHBLASE  ·  führt beim allerersten Spiel interaktiv durch
     das erste Level ("Tippe Befehle" -> "Drücke Start"). Per JS gesteuert.
   -->
-  <div id="coach" class="coach" hidden>Tippe ein paar Befehle: ⬆️ ↰ ↱</div>
+  <div id="coach" class="coach" hidden>Tippe ein paar Befehle: ⬆️ ↺ ↻</div>
 
   <!--
     HOCHFORMAT-HINWEIS  ·  wird per CSS (Media Query) nur eingeblendet,
@@ -278,8 +280,13 @@
       <div class="setting-gruppe">
         <div class="setting-titel">Ton &amp; Tempo</div>
         <label class="schalter">
-          <span class="schalter__text">🔊 Ton &amp; Vibration</span>
+          <span class="schalter__text">🔊 Ton</span>
           <input type="checkbox" id="tonToggle" />
+          <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
+        </label>
+        <label class="schalter">
+          <span class="schalter__text">📳 Vibration</span>
+          <input type="checkbox" id="vibToggle" />
           <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
         </label>
         <!-- Wie schnell führt die Katze die Befehle aus? -->
@@ -308,7 +315,8 @@
           <span class="schalter__track" aria-hidden="true"><span class="schalter__knopf"></span></span>
         </label>
         <p class="setting-hinweis">Schaltet Schleifen (2×, 3×, „bis Ziel", „solange frei")
-          und Bedingungen („wenn frei", „wenn Wand") frei. Ein Wechsel leert das Programm.</p>
+          und Bedingungen („wenn frei", „wenn Wand") frei. Enthält dein Programm
+          beim Ausschalten Schleifen, wird es geleert.</p>
       </div>
 
       <!-- Als App installieren (PWA). Der Button erscheint nur, wenn der
@@ -334,9 +342,13 @@
           <li><span class="legende__icon">🐟🥛🐭</span><span>Das Ziel – was Katzen mögen (Fisch, Milch, Maus, Wollknäuel …).</span></li>
           <li><span class="legende__icon">💧</span><span>Wasserpfütze – hier darf die Katze nicht hinein.</span></li>
           <li><span class="legende__icon">🐶</span><span>Hund – ein Hindernis, das den Weg versperrt.</span></li>
+          <li><span class="legende__icon">🚧</span><span>Zaun – auch hier kommt die Katze nicht durch.</span></li>
+          <li><span class="legende__icon">🧶</span><span>Sammelobjekt – muss die Katze <strong>vor</strong> dem Ziel einsammeln.</span></li>
+          <li><span class="legende__icon">🌫️</span><span>Nebel-Level: Nur die Nähe der Katze ist sichtbar – erkunde die Karte!</span></li>
+          <li><span class="legende__icon">🧩</span><span>Baustein-Budget: Das Programm darf höchstens so viele Bausteine haben – mit 🔁 Schleifen klappt das.</span></li>
           <li><span class="legende__icon">⬆️</span><span>Ein Schritt nach vorne (in Blickrichtung).</span></li>
-          <li><span class="legende__icon">↰</span><span>Die Katze eine Vierteldrehung nach links drehen.</span></li>
-          <li><span class="legende__icon">↱</span><span>Die Katze eine Vierteldrehung nach rechts drehen.</span></li>
+          <li><span class="legende__icon">↺</span><span>Die Katze dreht sich auf der Stelle nach links (sie geht dabei nicht!).</span></li>
+          <li><span class="legende__icon">↻</span><span>Die Katze dreht sich auf der Stelle nach rechts.</span></li>
           <li><span class="legende__icon">💥</span><span>Hier ist die Katze angestoßen (Wand oder Hindernis).</span></li>
           <li><span class="legende__icon">⭐💡</span><span>Sterne = cleverer Code, Glühbirnen = gleich beim 1. Versuch geschafft.</span></li>
           <li><span class="legende__icon">×</span><span>Kreuz am Block: löscht den Befehl. Tipp auf den Block: setzt eine Einfügemarke – neue Befehle landen davor.</span></li>
@@ -350,14 +362,38 @@
           <li><span class="legende__icon">➰(</span><span>„solange frei": Wiederholt den Inhalt, solange das Feld voraus frei ist.</span></li>
           <li><span class="legende__icon">❓(</span><span>„wenn frei": Der Inhalt läuft nur, wenn das Feld voraus frei ist.</span></li>
           <li><span class="legende__icon">🧱(</span><span>„wenn Wand": Der Inhalt läuft nur, wenn voraus eine Wand/ein Hindernis ist.</span></li>
-          <li><span class="legende__icon">）</span><span>Ende-Klammer – schließt eine Schleife oder einen Logikblock.</span></li>
+          <li><span class="legende__icon">）</span><span>„Ende": Schleifen legen ihre Klammern automatisch als Paar – der Knopf springt hinter die Klammer („fertig"). Fehlt mal eine „)", fügt er sie ein.</span></li>
         </ul>
         <p class="setting-hinweis">⭐ Tipp: Weniger Bausteine = bessere Bewertung.
-          Wer eine Schleife benutzt, bekommt außerdem einen
-          🔁 Schleifen-Bonus-Stern!</p>
+          Wer mit einer Schleife den Code wirklich <strong>verkürzt</strong>,
+          bekommt außerdem einen 🔁 Schleifen-Bonus-Stern!
+          ⏹ Stopp zählt übrigens nicht als Versuch.</p>
       </div>
 
       <button id="settingsFertig" class="steuer-btn steuer-btn--play" type="button">Fertig</button>
+    </div>
+  </div>
+
+  <!--
+    ========================================================================
+    8b. SCHLEIFEN-FREISCHALTUNG  ·  erscheint einmalig nach genug Grundlagen
+    ========================================================================
+  -->
+  <div id="unlockOverlay" class="overlay" aria-hidden="true">
+    <div class="overlay__box">
+      <div class="overlay__emoji">🔁</div>
+      <h2 class="overlay__titel">Neue Bausteine!</h2>
+      <p class="overlay__text">Stark! Du hast dir die <strong>Schleifen</strong>
+        verdient: Mit 🔁 wiederholt die Katze Befehle von selbst –
+        dein Code wird kürzer und schlauer.</p>
+      <div class="overlay__buttons">
+        <button id="unlockSpaeter" class="steuer-btn steuer-btn--reset" type="button">
+          Später
+        </button>
+        <button id="unlockJa" class="steuer-btn steuer-btn--play" type="button">
+          🔁 Ausprobieren!
+        </button>
+      </div>
     </div>
   </div>
 
@@ -371,7 +407,7 @@
       <div class="overlay__emoji">🐱</div>
       <h2 class="overlay__titel">Hallo!</h2>
       <ol class="tutorial-liste">
-        <li><span class="tutorial-liste__icon">1️⃣</span> Tippe Befehle: ⬆️ ↰ ↱</li>
+        <li><span class="tutorial-liste__icon">1️⃣</span> Tippe Befehle: ⬆️ ↺ ↻</li>
         <li><span class="tutorial-liste__icon">2️⃣</span> Drücke ▶ Start</li>
         <li><span class="tutorial-liste__icon">3️⃣</span> Bring die Katze zum Ziel! 🐟</li>
       </ol>
@@ -398,7 +434,8 @@
     </div>
   </div>
 
-  <!-- Spiel-Logik ganz am Ende laden, damit das DOM bereits existiert -->
+  <!-- Level-Daten zuerst, dann die Spiel-Logik (DOM existiert hier schon) -->
+  <script src="levels.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
